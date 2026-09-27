@@ -6,7 +6,8 @@ import { calculateEconomics, type Economics, type Engagement } from '../domain/c
 import { productionPath, type ContentItem, type ProductionState } from '../domain/content.js';
 import type { PublicationIntent } from '../domain/distribution.js';
 import type { Insight } from '../domain/learning.js';
-import { NotFoundError, type Money, type TenantId } from '../domain/shared.js';
+import { summarizeMarketing, type ConversionEvent, type MarketingExperiment, type MarketingPlan, type MarketingSpend, type MarketingSummary } from '../domain/marketing.js';
+import { NotFoundError, type MarketingPlanId, type Money, type TenantId } from '../domain/shared.js';
 import type { Strategy } from '../domain/strategy.js';
 import type { ActivityRepository, Clock, OutboxRecord, StoryhouseRepositories } from '../ports/index.js';
 
@@ -100,6 +101,19 @@ export interface CommerceSummary {
   readonly engagements: readonly CommerceItem[];
   readonly totals: Economics;
   readonly campaigns: readonly CampaignListItem[];
+}
+
+export interface MarketingPlanListItem {
+  readonly plan: MarketingPlan;
+  readonly brandName: string;
+  readonly strategyVersion: number;
+  readonly campaignCount: number;
+}
+
+export interface MarketingPlanDetail extends MarketingPlanListItem {
+  readonly brand: Brand;
+  readonly strategy: Strategy;
+  readonly campaigns: readonly Campaign[];
 }
 
 export interface AttentionItem {
@@ -290,6 +304,63 @@ export class OperatorQueryService {
     return { engagements, totals: this.sumEconomics(data.engagements), campaigns };
   }
 
+  async marketingPlans(tenantId: TenantId): Promise<readonly MarketingPlanListItem[]> {
+    const [plans, brands, strategies] = await Promise.all([
+      this.repositories.marketingPlans.list(tenantId),
+      this.repositories.brands.list(tenantId),
+      this.repositories.strategies.list(tenantId)
+    ]);
+    return plans.map((plan) => ({
+      plan,
+      brandName: brands.find((brand) => brand.id === plan.brandId)?.name ?? 'Unknown brand',
+      strategyVersion: strategies.find((strategy) => strategy.id === plan.strategyId)?.version ?? 0,
+      campaignCount: plan.campaignIds.length
+    })).sort(byNewest((item) => item.plan.createdAt));
+  }
+
+  async marketingPlan(tenantId: TenantId, id: MarketingPlanId): Promise<MarketingPlanDetail> {
+    const plan = await this.repositories.marketingPlans.get(tenantId, id);
+    if (plan === undefined) throw new NotFoundError('Marketing plan');
+    const [brand, strategy, campaigns] = await Promise.all([
+      this.repositories.brands.get(tenantId, plan.brandId),
+      this.repositories.strategies.get(tenantId, plan.strategyId),
+      this.repositories.campaigns.list(tenantId)
+    ]);
+    if (brand === undefined || strategy === undefined) throw new NotFoundError('Marketing plan relationship');
+    const linkedCampaigns = campaigns.filter((campaign) => plan.campaignIds.includes(campaign.id));
+    return { plan, brandName: brand.name, strategyVersion: strategy.version, campaignCount: linkedCampaigns.length, brand, strategy, campaigns: linkedCampaigns };
+  }
+
+  async marketingExperiments(tenantId: TenantId, marketingPlanId: MarketingPlanId): Promise<readonly MarketingExperiment[]> {
+    await this.requireMarketingPlan(tenantId, marketingPlanId);
+    return (await this.repositories.marketingExperiments.list(tenantId))
+      .filter((experiment) => experiment.marketingPlanId === marketingPlanId)
+      .sort(byNewest((experiment) => experiment.createdAt));
+  }
+
+  async marketingConversions(tenantId: TenantId, marketingPlanId: MarketingPlanId): Promise<readonly ConversionEvent[]> {
+    await this.requireMarketingPlan(tenantId, marketingPlanId);
+    return (await this.repositories.conversionEvents.list(tenantId))
+      .filter((event) => event.marketingPlanId === marketingPlanId)
+      .sort(byNewest((event) => event.occurredAt));
+  }
+
+  async marketingSpend(tenantId: TenantId, marketingPlanId: MarketingPlanId): Promise<readonly MarketingSpend[]> {
+    await this.requireMarketingPlan(tenantId, marketingPlanId);
+    return (await this.repositories.marketingSpend.list(tenantId))
+      .filter((item) => item.marketingPlanId === marketingPlanId)
+      .sort(byNewest((item) => item.occurredAt));
+  }
+
+  async marketingPerformance(tenantId: TenantId, marketingPlanId: MarketingPlanId): Promise<MarketingSummary> {
+    const plan = await this.requireMarketingPlan(tenantId, marketingPlanId);
+    const [conversions, spend] = await Promise.all([
+      this.marketingConversions(tenantId, marketingPlanId),
+      this.marketingSpend(tenantId, marketingPlanId)
+    ]);
+    return summarizeMarketing(plan, conversions, spend);
+  }
+
   private async snapshot(tenantId: TenantId): Promise<Snapshot> {
     const [brands, strategies, campaigns, content, approvals, publications, observations, insights, engagements] = await Promise.all([
       this.repositories.brands.list(tenantId), this.repositories.strategies.list(tenantId), this.repositories.campaigns.list(tenantId),
@@ -297,6 +368,12 @@ export class OperatorQueryService {
       this.repositories.observations.list(tenantId), this.repositories.insights.list(tenantId), this.repositories.engagements.list(tenantId)
     ]);
     return { brands, strategies, campaigns, content, approvals, publications, observations, insights, engagements };
+  }
+
+  private async requireMarketingPlan(tenantId: TenantId, id: MarketingPlanId): Promise<MarketingPlan> {
+    const plan = await this.repositories.marketingPlans.get(tenantId, id);
+    if (plan === undefined) throw new NotFoundError('Marketing plan');
+    return plan;
   }
 
   private brandItem(brand: Brand, data: Snapshot): BrandListItem {

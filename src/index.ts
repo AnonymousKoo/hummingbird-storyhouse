@@ -10,6 +10,7 @@ export * from './domain/analytics.js';
 export * from './domain/learning.js';
 export * from './domain/creators.js';
 export * from './domain/commerce.js';
+export * from './domain/marketing.js';
 export * from './ports/index.js';
 export * from './application/storyhouse.js';
 export * from './application/commands.js';

@@ -2,13 +2,14 @@ import { BrandMark } from '../components/brand-mark';
 import { IntakeForm } from '../components/intake-form';
 
 const capabilities = [
-  { number: '01', title: 'Brand & Content Strategy', copy: 'Find the cultural truth, define the point of view, and build the system that can carry it.', className: 'cap-strategy' },
+  { number: '01', title: 'Brand, Audience & Marketing Strategy', copy: 'Connect the business outcome, audience need, positioning, offer, and message before the work takes shape.', className: 'cap-strategy' },
   { number: '02', title: 'Creative Development', copy: 'Turn sharp strategy into formats, treatments, scripts, and ideas people choose to spend time with.', className: 'cap-creative' },
   { number: '03', title: 'Video + Multimedia Production', copy: 'Make every frame, sound, and cut earn attention—from a single hero film to a living content universe.', className: 'cap-production' },
   { number: '04', title: 'Creator Partnerships', copy: 'Build credible collaborations around shared audience, taste, and purpose—not borrowed reach.', className: 'cap-creators' },
-  { number: '05', title: 'Distribution', copy: 'Engineer the release so the story arrives in the right shape, place, sequence, and moment.', className: 'cap-distribution' },
-  { number: '06', title: 'Audience Intelligence', copy: 'Read the signals behind attention and convert real behavior into the next creative decision.', className: 'cap-intelligence' },
-  { number: '07', title: 'Originals & IP', copy: 'Develop owned worlds with the depth to grow across films, series, audio, editorial, and emerging formats.', className: 'cap-originals' }
+  { number: '05', title: 'Channel Distribution', copy: 'Engineer the release so the story arrives in the right shape, channel, sequence, and moment.', className: 'cap-distribution' },
+  { number: '06', title: 'Growth Marketing', copy: 'Design campaigns, funnel and channel plans, conversion paths, lifecycle touchpoints, and useful experiments around the creative.', className: 'cap-growth' },
+  { number: '07', title: 'Audience & Performance Intelligence', copy: 'Read media and business signals together—from attention and retention to intent, leads, conversion, and value.', className: 'cap-intelligence' },
+  { number: '08', title: 'Originals & IP', copy: 'Develop owned worlds with the depth to grow across films, series, audio, editorial, and emerging formats.', className: 'cap-originals' }
 ] as const;
 
 const worlds = [
@@ -18,11 +19,11 @@ const worlds = [
 ] as const;
 
 const relationship = [
-  ['01', 'Discover', 'We find the real objective, the cultural opening, and what the audience should feel or do.'],
-  ['02', 'Build', 'We shape the strategy, story, formats, makers, and measurement into one clear operating idea.'],
-  ['03', 'Release', 'We produce and sequence the work for the ways people actually encounter media.'],
-  ['04', 'Learn', 'We read attention as evidence—what held, moved, traveled, and converted.'],
-  ['05', 'Compound', 'We feed the learning forward so the next release begins smarter and lands harder.']
+  ['01', 'Discover', 'We clarify the business outcome, audience need, cultural opening, and what people should feel or do.'],
+  ['02', 'Position', 'We shape the offer, message, conversion path, and channel role into one clear direction.'],
+  ['03', 'Build', 'We develop the creative system and produce the story in the formats the idea deserves.'],
+  ['04', 'Release', 'We distribute and sequence the campaign for the ways people actually encounter media.'],
+  ['05', 'Convert & Learn', 'We read results, understand what moved attention and action, and carry the learning into the next cycle.']
 ] as const;
 
 function ArrowIcon() {
@@ -57,8 +58,8 @@ function HeroComposition() {
         <span className="editorial-rule" />
       </article>
       <article className="media-frame frame-signal">
-        <div><span className="signal-live"><i /> LIVE SIGNAL</span><b>78%</b></div>
-        <p>Held past the first turn</p>
+        <div><span className="signal-live"><i /> SIGNAL MODEL</span><b>HOLD</b></div>
+        <p>Attention becomes evidence</p>
         <svg aria-hidden="true" viewBox="0 0 210 55"><path d="M2 48C24 45 26 38 43 40s27 10 44 1 25-3 40-18 27 4 40-5 21-13 41-16" /></svg>
       </article>
       <article className="media-frame frame-title">
@@ -81,7 +82,7 @@ function HeroComposition() {
 function StoryEngine() {
   const formats = ['REEL', 'SHORT', 'STILL', 'CAROUSEL', 'AUDIO', 'EDITORIAL'];
   return (
-    <div className="engine" aria-label="The Story Engine turns a story seed into formats, distribution, signals, and the next creative decision">
+    <div className="engine" aria-label="The Story Engine connects a business objective, audience and offer, hero story, native formats, distribution, action, signals, and the next creative and marketing decision">
       <svg className="engine-lines" aria-hidden="true" viewBox="0 0 1200 600" preserveAspectRatio="none">
         <defs>
           <linearGradient id="engineGradient" x1="0" x2="1">
@@ -90,21 +91,25 @@ function StoryEngine() {
             <stop offset="1" stopColor="#36E4DA" />
           </linearGradient>
         </defs>
-        <path className="engine-main-line" d="M72 300H270C325 300 318 155 385 155H690C746 155 734 300 790 300H1125" />
-        <path d="M318 300C340 300 346 235 385 235H690C725 235 740 300 790 300" />
-        <path d="M318 300H790" />
-        <path d="M318 300C340 300 346 365 385 365H690C725 365 740 300 790 300" />
-        <path d="M318 300C340 300 346 445 385 445H690C746 445 734 300 790 300" />
+        <path className="engine-main-line" d="M45 300C135 300 120 150 220 150S315 300 400 300 480 150 565 150 650 300 735 300H1145" />
+        <path d="M510 300C535 265 535 235 565 220H650C680 235 680 265 705 300" />
+        <path d="M510 300H705" />
+        <path d="M510 300C535 335 535 365 565 380H650C680 365 680 335 705 300" />
+        <path d="M510 300C535 405 555 455 610 455S680 405 705 300" />
         <path className="engine-loop" d="M1108 325C1080 548 670 570 310 520 136 496 74 422 72 335" />
       </svg>
       <div className="engine-node engine-seed">
         <span>BUSINESS OBJECTIVE</span>
-        <b>One idea<br />worth moving</b>
+        <b>A result<br />worth moving.</b>
         <i />
+      </div>
+      <div className="engine-node engine-audience">
+        <span>AUDIENCE + OFFER</span>
+        <b>A real need.<br />A clear next step.</b>
       </div>
       <div className="engine-node engine-story">
         <span>HERO STORY</span>
-        <b>The signal<br />gets a shape.</b>
+        <b>The strategy<br />gets a pulse.</b>
       </div>
       <div className="engine-formats">
         {formats.map((format, index) => <span key={format} style={{ '--format-index': index } as React.CSSProperties}>{format}</span>)}
@@ -113,13 +118,44 @@ function StoryEngine() {
         <span>DISTRIBUTION</span>
         <b>Right format.<br />Right moment.</b>
       </div>
+      <div className="engine-node engine-action">
+        <span>ACTION / CONVERSION</span>
+        <b>Attention finds<br />somewhere to go.</b>
+      </div>
       <div className="engine-node engine-signal">
-        <span>SIGNAL CAPTURE</span>
-        <b>Attention becomes<br />evidence.</b>
+        <span>MEDIA + BUSINESS SIGNALS</span>
+        <b>Response becomes<br />evidence.</b>
         <div className="mini-bars"><i /><i /><i /><i /></div>
       </div>
-      <div className="engine-next"><span>NEXT CREATIVE DECISION</span><i>↗</i></div>
+      <div className="engine-next"><span>NEXT CREATIVE / MARKETING DECISION</span><i>↗</i></div>
     </div>
+  );
+}
+
+function MediaMeetsMarketing() {
+  const stages = ['AWARENESS', 'CONSIDERATION', 'CONVERSION', 'RETENTION'];
+  const channels = ['SOCIAL', 'SEARCH', 'EMAIL', 'CREATOR', 'PARTNERSHIPS', 'PAID', 'WEB'];
+  const outcomes = ['AUDIENCE', 'QUALIFIED LEADS', 'BOOKINGS', 'SIGNUPS', 'PURCHASES', 'RETENTION'];
+  return (
+    <section className="media-marketing section-pad" id="media-marketing">
+      <div className="section-number" aria-hidden="true">03 / 10</div>
+      <div className="media-marketing-head" data-reveal>
+        <p className="kicker">Media meets marketing</p>
+        <h2>Attention is only<br /><em>the beginning.</em></h2>
+        <div>
+          <p>Media earns the attention. Marketing gives that attention somewhere to go.</p>
+          <p>We design the story, audience, offer, channel, call to action, and measurement together from the start—so creative can move people and move business.</p>
+        </div>
+      </div>
+      <div className="journey-field" data-reveal aria-label="Media and marketing journey from awareness through retention, surrounded by channels and connected to business outcomes">
+        <div className="journey-label">STORY × AUDIENCE × OFFER × ACTION</div>
+        <div className="channel-signals" aria-label="Channels">{channels.map((channel) => <span key={channel}>{channel}</span>)}</div>
+        <div className="journey-stages">
+          {stages.map((stage, index) => <div key={stage}><small>0{index + 1}</small><strong>{stage}</strong>{index < stages.length - 1 && <i aria-hidden="true">→</i>}</div>)}
+        </div>
+        <div className="outcome-signals"><span>OUTCOMES</span>{outcomes.map((outcome) => <b key={outcome}>{outcome}</b>)}</div>
+      </div>
+    </section>
   );
 }
 
@@ -141,31 +177,31 @@ export default function Home() {
         <section className="hero" id="top">
           <div className="hero-noise" />
           <div className="hero-copy" data-reveal>
-            <p className="kicker"><span>H</span> Culture × Storytelling × Media Systems</p>
+            <p className="kicker"><span>H</span> Culture × Storytelling × Marketing Systems</p>
             <h1>Stories don’t sit still.<br /><em>Neither do we.</em></h1>
-            <p className="hero-support">Hummingbird Storyhouse builds stories, media systems, and original worlds designed to move through culture.</p>
+            <p className="hero-support">Hummingbird Storyhouse builds stories, campaigns, media systems, and growth loops designed to move people and move business.</p>
             <div className="hero-actions">
               <a className="button button-primary" href="#start">Start a project <ArrowIcon /></a>
               <a className="button button-quiet" href="#storyhouse">Enter the Storyhouse <span aria-hidden="true">↓</span></a>
             </div>
-            <p className="hero-descriptor">Multimedia company <i /> Strategy <i /> Production <i /> Distribution <i /> Intelligence</p>
+            <p className="hero-descriptor">Media + marketing company <i /> Strategy <i /> Creative <i /> Production <i /> Distribution <i /> Growth Intelligence</p>
           </div>
           <HeroComposition />
           <div className="scroll-cue" aria-hidden="true"><span>SCROLL TO FOLLOW THE SIGNAL</span><i /></div>
         </section>
 
         <section className="positioning section-pad" id="storyhouse">
-          <div className="section-number" aria-hidden="true">01 / 09</div>
+          <div className="section-number" aria-hidden="true">01 / 10</div>
           <div className="positioning-lead" data-reveal>
             <p className="kicker">Inside the Storyhouse</p>
-            <h2>Not a content factory.<br /><em>A media operating company.</em></h2>
+            <h2>Not a content factory.<br /><em>A media + marketing operating company.</em></h2>
           </div>
           <div className="positioning-copy" data-reveal>
-            <p>Great creative should not disappear into a feed. We connect strategy, creative development, production, release, audience intelligence, and learning into one compound media loop.</p>
+            <p>Great creative should not disappear into a feed. We connect the business objective, audience, offer, creative, production, distribution, conversion, and learning in one loop.</p>
             <p>The result is work with a point of view—and a system that makes every release more useful than the last.</p>
           </div>
-          <div className="operating-loop" aria-label="Strategy, create, produce, release, learn, compound">
-            {['STRATEGY', 'CREATE', 'PRODUCE', 'RELEASE', 'LEARN', 'COMPOUND'].map((item, index) => (
+          <div className="operating-loop" aria-label="Position, create, produce, distribute, convert, learn">
+            {['POSITION', 'CREATE', 'PRODUCE', 'DISTRIBUTE', 'CONVERT', 'LEARN'].map((item, index) => (
               <div key={item} data-reveal><span>0{index + 1}</span><b>{item}</b>{index < 5 && <i aria-hidden="true">→</i>}</div>
             ))}
           </div>
@@ -188,12 +224,14 @@ export default function Home() {
           </div>
         </section>
 
+        <MediaMeetsMarketing />
+
         <section className="story-engine-section section-pad" id="engine">
-          <div className="section-number" aria-hidden="true">03 / 09</div>
+          <div className="section-number" aria-hidden="true">04 / 10</div>
           <div className="engine-heading" data-reveal>
             <p className="kicker">The Story Engine</p>
             <h2>One strong story should not become <em>one asset.</em></h2>
-            <p>A core idea can become a film, a voice, a visual language, a conversation, and a feedback loop. We build for the whole journey—not a folder of deliverables.</p>
+            <p>A business objective and audience need can become a story, a release system, a clear action, and a learning loop. We build the whole journey—not a folder of deliverables.</p>
           </div>
           <StoryEngine />
           <div className="engine-caption">
@@ -257,28 +295,28 @@ export default function Home() {
           <div className="signals-copy" data-reveal>
             <p className="kicker">Intelligence / Signals</p>
             <h2>Every release teaches <em>the next one.</em></h2>
-            <p>We study how a story behaves after release—not to chase the algorithm, but to understand the audience. Attention becomes insight. Insight sharpens the work.</p>
+            <p>We evaluate how the media behaves and what it helps the business do. Attention, retention, intent, leads, conversion, and value become inputs for the next creative and marketing decision.</p>
             <div className="learning-loop">
               {['CREATE', 'MEASURE', 'LEARN', 'IMPROVE'].map((word, index) => <span key={word}>{word}{index < 3 && <i>→</i>}</span>)}
             </div>
           </div>
           <div className="signal-console" data-reveal>
-            <div className="console-head"><span>RELEASE SIGNAL / 0047</span><span><i /> LIVE READ</span></div>
+            <div className="console-head"><span>ILLUSTRATIVE SIGNAL MODEL</span><span><i /> MEDIA + BUSINESS</span></div>
             <div className="signal-flow">
               {[
-                ['HOOK', '82', 'The opening earns the pause'],
-                ['RETENTION', '71', 'The tension holds through turn two'],
-                ['SAVES', '38', 'Utility extends the story’s life'],
-                ['SHARES', '54', 'Identity makes it travel'],
-                ['CONVERSION', '19', 'Intent moves into action'],
-                ['AUDIENCE', '↑', 'The next question gets clearer']
-              ].map(([label, value, note], index) => (
+                ['ATTENTION', 'EARN', 'The opening earns a relevant pause'],
+                ['RETENTION', 'HOLD', 'The story sustains meaningful interest'],
+                ['INTENT', 'SEEK', 'People look for the next detail'],
+                ['LEADS', 'QUALIFY', 'Interest becomes a useful relationship'],
+                ['CONVERSION', 'ACT', 'A clear path turns intent into action'],
+                ['VALUE', 'LEARN', 'Business response sharpens the next cycle']
+              ].map(([label, state, note], index) => (
                 <div className="signal-row" key={label}>
-                  <span>0{index + 1}</span><b>{label}</b><div><i style={{ width: `${44 + index * 8}%` }} /></div><strong>{value}{value !== '↑' && '%'}</strong><small>{note}</small>
+                  <span>0{index + 1}</span><b>{label}</b><div><i style={{ width: `${44 + index * 8}%` }} /></div><strong>{state}</strong><small>{note}</small>
                 </div>
               ))}
             </div>
-            <div className="console-foot"><span>AUDIENCE RESPONSE IS A CREATIVE INPUT</span><span>HSH.INTEL</span></div>
+            <div className="console-foot"><span>RESPONSE IS A CREATIVE + MARKETING INPUT</span><span>HSH.INTEL</span></div>
           </div>
         </section>
 
@@ -300,7 +338,7 @@ export default function Home() {
           <div className="intake-copy" data-reveal>
             <p className="kicker">Start a project</p>
             <h2>You have something worth saying.<br /><em>Let’s make it impossible to ignore.</em></h2>
-            <p>Bring the ambition, the knotty problem, or the early spark. We’ll start by finding the story at the center of it.</p>
+            <p>Bring the business outcome, growth ambition, knotty problem, or early spark. We’ll start by finding the audience and story at the center of it.</p>
             <div className="intake-contact"><span>NEW BUSINESS / COLLABORATION</span><a href="mailto:hello@hummingbirdstoryhouse.com">hello@hummingbirdstoryhouse.com <span aria-hidden="true">↗</span></a></div>
           </div>
           <div className="intake-panel" data-reveal>
@@ -314,7 +352,7 @@ export default function Home() {
         <div className="footer-top"><BrandMark /><p>Culture moves.<br /><em>Stories carry it.</em></p></div>
         <div className="footer-bottom">
           <nav aria-label="Footer navigation"><a href="#work">Work</a><a href="#capabilities">Capabilities</a><a href="#originals">Originals</a><a href="#engine">Story Engine</a><a href="#start">Start a Project</a></nav>
-          <span>Multimedia company</span>
+          <span>Media + marketing company</span>
           <small>© 2026 Hummingbird Storyhouse</small>
         </div>
       </footer>

@@ -1,6 +1,6 @@
 # Hummingbird Storyhouse Core
 
-Hummingbird Storyhouse Core is the domain and application foundation for a multimedia/content company. It turns a client objective into a measurable operating loop: brand intelligence → strategy → campaign → content → production → approval → distribution → analytics → learning → renewal economics.
+Hummingbird Storyhouse Core is the domain and application foundation for a media + marketing company. It turns a client objective into a measurable operating loop: brand intelligence → strategy → marketing plan → campaign → content → production → distribution → conversion → analytics → learning → renewal economics.
 
 This repository contains a TypeScript domain/application core, the private Next.js operator app in `apps/operator`, and the public Hummingbird Storyhouse site in `apps/web`. The public and operator applications are separate: the public site is static-first and has no database dependency, while the operator app uses the durable PostgreSQL path exclusively.
 
@@ -42,7 +42,7 @@ The documented commands default only for local development to `storyhouse_test` 
 
 ## Public site
 
-The public site presents the Storyhouse as a media operating company across strategy, production, distribution, audience intelligence, and original IP. It is an independently installable Next.js App Router application with no core, operator, PostgreSQL, or environment-variable requirement.
+The public site presents the Storyhouse as a media + marketing operating company across brand/audience strategy, creative, production, distribution, growth marketing, performance intelligence, and original IP. It is an independently installable Next.js App Router application with no core, operator, PostgreSQL, or environment-variable requirement.
 
 ```sh
 cd apps/web
@@ -56,7 +56,7 @@ Its intake form is intentionally a transparent client-side acknowledgement in th
 
 The core is organized as a framework-independent modular monolith:
 
-- `src/domain`: twelve bounded contexts, value objects, transitions, and invariants.
+- `src/domain`: thirteen bounded contexts, value objects, transitions, and invariants.
 - `src/application`: useful cross-context commands and the end-to-end operating loop.
 - `src/application/operator-queries.ts`: transport-neutral, tenant-explicit operator read models.
 - `src/ports`: clocks, IDs, events, storage, transaction, receipt, outbox, and repository contracts.
@@ -70,7 +70,8 @@ Dependencies point inward: adapters depend on ports/domain; application coordina
 
 - Onboard tenant-scoped organizations and brand brains.
 - Version and activate content strategies with channel roles and KPI targets.
-- Create active campaigns and campaign-derived content briefs.
+- Build tenant-scoped marketing plans across business outcomes, audiences, positioning, offers, funnel/channel roles, conversion goals, and one or more existing execution campaigns.
+- Create active campaigns, run marketing experiments, and explicitly record attributed conversions and channel spend with deterministic CAC, ROAS, and channel summaries—without inventing attribution.
 - Move content through controlled production states.
 - Request and audit approvals or revisions; approval gates scheduling.
 - Schedule channel variants and record platform-neutral publication receipts.
@@ -87,7 +88,7 @@ Dependencies point inward: adapters depend on ports/domain; application coordina
 
 ## Example golden path
 
-`src/demo.ts` composes the service with a fixed clock, sequential IDs, in-memory repositories, event collection, and a deterministic insight generator. Sequential IDs are intentionally for tests and demos only; `PostgresDurableCommandGateway` defaults to Node's cryptographically random UUID generator while preserving readable prefixes such as `brand_`. The PostgreSQL integration suite runs the same loop through typed command envelopes: brand → strategy → activation → campaign → content/production → approval → publication → metrics → insight → commerce. It also proves tenant isolation, strict restart-safe replay, concurrent transition safety, migration checksum enforcement, schema privacy, rollback, atomic outbox/receipt writes, lossless payload round-trips, and minor-unit economics.
+`src/demo.ts` composes the service with a fixed clock, sequential IDs, in-memory repositories, event collection, and a deterministic insight generator. Sequential IDs are intentionally for tests and demos only; `PostgresDurableCommandGateway` defaults to Node's cryptographically random UUID generator while preserving readable prefixes such as `brand_`. The PostgreSQL integration suite runs the core media loop through typed command envelopes: brand → strategy → activation → campaign → content/production → approval → publication → metrics → insight → commerce, and separately proves the durable marketing lifecycle from plan → campaign linkage → spend/conversion attribution → experiment completion. It also proves tenant isolation, strict restart-safe replay, concurrent transition safety, migration checksum enforcement, schema privacy, rollback, atomic outbox/receipt writes, lossless payload round-trips, and minor-unit economics.
 
 ## Quality gates
 
@@ -100,4 +101,4 @@ cd apps/web && npm run check && npm audit
 
 ## Deliberately not built
 
-There is no public intake backend, hosted database, object storage implementation, authentication provider, RLS policy, background scheduler/outbox worker, AI vendor, or social-platform integration. There is no Supabase runtime or committed Vercel project metadata. Hosted database selection and authorization policy remain deferred until the identity model is finalized. Avuhz is not a dependency: future orchestration can issue idempotent commands, consume the outbox, and implement ports without entering the domain core.
+There is no public intake backend, hosted database, object storage implementation, authentication provider, RLS policy, background scheduler/outbox worker, AI vendor, or social-platform integration. There is no Supabase runtime or committed Vercel project metadata. Hosted database selection and authorization policy remain deferred until the identity model is finalized. Avuhz is not a dependency: future orchestration can issue idempotent commands, consume the outbox, and implement ports without entering the domain core. Marketing strategy, funnel semantics, attribution records, experiments, and performance rules remain Hummingbird-owned business logic; Avuhz may automate their execution later.

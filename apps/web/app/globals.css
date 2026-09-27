@@ -336,9 +336,88 @@ h1 em, h2 em, h3 em { color: var(--coral); font-weight: 400; }
 .capability:hover > i { opacity: 1; transform: translate(3px, -3px); }
 .cap-strategy { grid-column: span 7; }.cap-creative { grid-column: span 5; border-right: 0; }
 .cap-production { grid-column: span 5; }.cap-creators { grid-column: span 3; }.cap-distribution { grid-column: span 4; border-right: 0; }
-.cap-intelligence { grid-column: span 4; min-height: 400px; background: rgb(54 228 218 / 4%); }
-.cap-originals { grid-column: span 8; min-height: 400px; border-right: 0; background: linear-gradient(120deg, rgb(168 85 247 / 9%), transparent 62%); }
-.cap-intelligence h3 { color: var(--aqua); }.cap-originals h3 { font-size: clamp(3rem, 5vw, 5.2rem); }
+.cap-growth { grid-column: span 5; min-height: 400px; background: linear-gradient(145deg, rgb(255 92 122 / 9%), transparent 70%); }
+.cap-intelligence { grid-column: span 7; min-height: 400px; border-right: 0; background: rgb(54 228 218 / 4%); }
+.cap-originals { grid-column: 1 / -1; min-height: 400px; border-right: 0; background: linear-gradient(120deg, rgb(168 85 247 / 9%), transparent 62%); }
+.cap-growth h3 { color: var(--coral); }
+.cap-intelligence h3 { color: var(--aqua); }
+.cap-originals h3 { font-size: clamp(3rem, 5vw, 5.2rem); }
+
+/* Media meets marketing */
+.media-marketing { position: relative; padding-top: 90px; }
+.media-marketing::before {
+  position: absolute;
+  z-index: -1;
+  top: 12%;
+  right: -4vw;
+  bottom: 10%;
+  left: -4vw;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(circle at 82% 26%, rgb(54 228 218 / 9%), transparent 24%),
+    radial-gradient(circle at 18% 72%, rgb(168 85 247 / 11%), transparent 28%),
+    linear-gradient(135deg, rgb(17 21 42 / 72%), rgb(8 11 20 / 94%));
+  content: '';
+}
+.media-marketing-head { display: grid; grid-template-columns: 1.15fr 0.65fr; column-gap: 9vw; align-items: end; }
+.media-marketing-head .kicker { grid-column: 1 / -1; }
+.media-marketing-head h2 { font-size: clamp(4rem, 7vw, 7.8rem); }
+.media-marketing-head > div { padding-bottom: 0.8vw; color: var(--silver); line-height: 1.8; }
+.media-marketing-head > div p:first-child { color: var(--white); font-size: 1.08rem; }
+.journey-field {
+  position: relative;
+  min-height: 540px;
+  margin-top: clamp(70px, 9vw, 130px);
+  padding: 30px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(rgb(248 247 252 / 2.5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(248 247 252 / 2.5%) 1px, transparent 1px),
+    rgb(17 21 42 / 62%);
+  background-size: 56px 56px;
+}
+.journey-field::before {
+  position: absolute;
+  top: 50%;
+  right: 8%;
+  left: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--orchid), var(--coral), var(--aqua), transparent);
+  content: '';
+  box-shadow: 0 0 26px rgb(168 85 247 / 30%);
+}
+.journey-label { position: absolute; top: 28px; left: 30px; color: var(--aqua); font-size: 0.55rem; font-weight: 800; letter-spacing: 0.15em; }
+.channel-signals { position: absolute; top: 28px; right: 30px; display: flex; max-width: 58%; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.channel-signals span, .outcome-signals b {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  background: rgb(8 11 20 / 58%);
+  color: var(--silver);
+  font-size: 0.48rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+}
+.channel-signals span:nth-child(3n+1) { border-color: rgb(168 85 247 / 35%); }
+.channel-signals span:nth-child(3n+2) { border-color: rgb(255 92 122 / 32%); }
+.channel-signals span:nth-child(3n) { border-color: rgb(54 228 218 / 32%); }
+.journey-stages {
+  position: absolute;
+  top: 50%;
+  right: 6%;
+  left: 6%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  transform: translateY(-50%);
+}
+.journey-stages > div { position: relative; min-height: 155px; padding: 23px; border: 1px solid var(--line); border-right: 0; background: rgb(8 11 20 / 87%); }
+.journey-stages > div:last-child { border-right: 1px solid var(--line); }
+.journey-stages small { color: var(--coral); font-size: 0.5rem; font-weight: 800; letter-spacing: 0.12em; }
+.journey-stages strong { position: absolute; bottom: 24px; left: 23px; font-family: var(--font-display), Georgia, serif; font-size: clamp(1.35rem, 2vw, 2rem); font-weight: 500; letter-spacing: -0.025em; }
+.journey-stages i { position: absolute; z-index: 2; right: -9px; bottom: 24px; color: var(--aqua); font-style: normal; }
+.outcome-signals { position: absolute; right: 30px; bottom: 27px; left: 30px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.outcome-signals > span { margin-right: 8px; color: var(--coral); font-size: 0.5rem; font-weight: 800; letter-spacing: 0.15em; }
+.outcome-signals b { color: var(--white); font-weight: 700; }
 
 /* Story engine */
 .story-engine-section { position: relative; width: 100%; max-width: none; padding-inline: max(4vw, calc((100vw - 1500px) / 2)); overflow: hidden; background: var(--cloud); color: var(--ink); }
@@ -357,12 +436,14 @@ h1 em, h2 em, h3 em { color: var(--coral); font-weight: 400; }
 .engine-node:hover { transform: translateY(-5px); box-shadow: 0 20px 50px rgb(17 21 42 / 10%); }
 .engine-node span { font-size: 0.51rem; font-weight: 800; letter-spacing: 0.15em; }
 .engine-node b { font-family: var(--font-display), Georgia, serif; font-size: clamp(1.5rem, 2.3vw, 2.3rem); font-weight: 600; line-height: 0.95; }
-.engine-seed { top: 200px; left: 0; width: 18%; min-width: 180px; height: 200px; border-color: rgb(168 85 247 / 67%); }
+.engine-seed { top: 220px; left: 0; width: 14%; min-width: 145px; height: 185px; border-color: rgb(168 85 247 / 67%); }
 .engine-seed i { position: absolute; top: 50%; right: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--orchid); box-shadow: 0 0 20px var(--orchid); }
-.engine-story { top: 200px; left: 24%; width: 19%; height: 200px; border-color: rgb(255 92 122 / 67%); }
-.engine-distribute { top: 200px; left: 65%; width: 17%; height: 200px; border-color: rgb(54 228 218 / 67%); }
-.engine-signal { top: 200px; right: 0; width: 15%; min-width: 165px; height: 200px; }
-.engine-formats { position: absolute; top: 55px; left: 45%; display: grid; width: 18%; grid-template-columns: 1fr 1fr; gap: 8px; }
+.engine-audience { top: 92px; left: 15.5%; width: 15%; height: 185px; border-color: rgb(54 228 218 / 58%); }
+.engine-story { top: 220px; left: 31.5%; width: 14%; height: 185px; border-color: rgb(255 92 122 / 67%); }
+.engine-formats { position: absolute; top: 65px; left: 47%; display: grid; width: 16%; grid-template-columns: 1fr 1fr; gap: 8px; }
+.engine-distribute { top: 220px; left: 64.5%; width: 13%; height: 185px; border-color: rgb(54 228 218 / 67%); }
+.engine-action { top: 92px; left: 79%; width: 16%; height: 185px; border-color: rgb(255 92 122 / 58%); }
+.engine-signal { top: 340px; right: 1%; width: 17%; min-width: 165px; height: 185px; border-color: rgb(168 85 247 / 40%); }
 .engine-formats span { display: grid; min-height: 55px; place-items: center; border: 1px solid rgb(17 21 42 / 20%); background: var(--cloud); font-size: 0.52rem; font-weight: 800; letter-spacing: 0.12em; transition: color 180ms ease, background 180ms ease, transform 180ms ease; }
 .engine-formats span:hover { background: var(--indigo); color: var(--white); transform: translateY(-3px); }
 .mini-bars { display: flex; height: 38px; align-items: end; gap: 4px; }
@@ -524,11 +605,14 @@ h1 em, h2 em, h3 em { color: var(--coral); font-weight: 400; }
   .hero h1 { font-size: clamp(4.2rem, 8vw, 7rem); }
   .positioning { column-gap: 5vw; }
   .section-heading { gap: 6vw; }
+  .media-marketing-head { column-gap: 5vw; }
+  .journey-stages { right: 4%; left: 4%; }
   .engine-node { padding: 16px; }
-  .engine-node b { font-size: 1.5rem; }
+  .engine-node b { font-size: 1.25rem; }
+  .engine-seed { min-width: 125px; }
   .engine-signal { min-width: 145px; }
   .signals { gap: 5vw; }
-  .signal-row { grid-template-columns: 25px 80px 1fr 36px; }
+  .signal-row { grid-template-columns: 25px 80px 1fr 68px; }
   .relationship-steps { grid-template-columns: repeat(3, 1fr); }
   .relationship-steps article:nth-child(3) { border-right: 0; }
   .relationship-steps article:nth-child(n+4) { border-top: 1px solid var(--line); }
@@ -544,8 +628,16 @@ h1 em, h2 em, h3 em { color: var(--coral); font-weight: 400; }
   .hero h1 { font-size: clamp(4rem, 14vw, 7rem); }
   .hero-composition { width: 90vw; max-width: 720px; height: 600px; margin: 35px auto 0; }
   .scroll-cue { display: none; }
-  .positioning, .engine-heading, .signals, .intake { grid-template-columns: 1fr; }
+  .positioning, .engine-heading, .signals, .intake, .media-marketing-head { grid-template-columns: 1fr; }
   .positioning-copy { max-width: 600px; margin-top: 55px; }
+  .media-marketing-head > div { max-width: 620px; margin-top: 45px; }
+  .journey-field { min-height: 650px; padding: 24px; }
+  .journey-label { top: 23px; left: 24px; }
+  .channel-signals { top: 70px; right: 24px; left: 24px; max-width: none; justify-content: flex-start; }
+  .journey-stages { top: 51%; right: 24px; left: 24px; grid-template-columns: 1fr 1fr; gap: 1px; transform: translateY(-50%); }
+  .journey-stages > div, .journey-stages > div:last-child { min-height: 125px; border: 1px solid var(--line); }
+  .journey-stages i { display: none; }
+  .outcome-signals { right: 24px; bottom: 23px; left: 24px; }
   .operating-loop { grid-template-columns: repeat(3, 1fr); }
   .operating-loop div:nth-child(3) { border-right: 0; }.operating-loop div:nth-child(-n+3) { border-bottom: 1px solid var(--line); }
   .section-heading { grid-template-columns: 1fr; }
@@ -557,10 +649,9 @@ h1 em, h2 em, h3 em { color: var(--coral); font-weight: 400; }
   .engine { display: grid; height: auto; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 70px; }
   .engine-lines { display: none; }
   .engine-node, .engine-formats, .engine-next { position: static; width: auto; min-width: 0; height: auto; min-height: 180px; }
-  .engine-seed, .engine-story { grid-column: span 1; }
+  .engine-seed, .engine-audience, .engine-story, .engine-distribute, .engine-action, .engine-signal { grid-column: span 1; }
   .engine-formats { display: grid; grid-column: 1 / -1; grid-template-columns: repeat(3, 1fr); }
   .engine-formats span { min-height: 70px; }
-  .engine-distribute, .engine-signal { grid-column: span 1; }
   .engine-next { grid-column: 1 / -1; min-height: 70px; border-radius: 0; }
   .engine-caption { flex-wrap: wrap; }
   .world, .world:nth-child(even) { grid-template-columns: 1fr; }
@@ -607,15 +698,24 @@ h1 em, h2 em, h3 em { color: var(--coral); font-weight: 400; }
   .frame-title { top: 45%; left: 2%; width: 39%; min-height: 100px; padding: 12px; }
   .hero-seed { width: 62px; height: 62px; font-size: .37rem; }
   .section-number { top: 43px; }
-  h2, .positioning-lead h2, .engine-heading h2, .signals-copy h2, .intake-copy h2 { font-size: clamp(3.25rem, 15vw, 4.8rem); }
+  h2, .positioning-lead h2, .media-marketing-head h2, .engine-heading h2, .signals-copy h2, .intake-copy h2 { font-size: clamp(3.25rem, 15vw, 4.8rem); }
   .operating-loop { grid-template-columns: 1fr 1fr; }
   .operating-loop div, .operating-loop div:nth-child(3) { min-height: 110px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .operating-loop div:nth-child(even) { border-right: 0; }
   .capability { grid-column: 1 / -1; min-height: 300px; border-right: 0; }
   .capability h3, .cap-originals h3 { font-size: 2.7rem; }
+  .media-marketing::before { right: -18px; left: -18px; }
+  .journey-field { min-height: 760px; margin-top: 65px; padding: 18px; }
+  .journey-label { top: 20px; left: 18px; font-size: .48rem; }
+  .channel-signals { top: 62px; right: 18px; left: 18px; }
+  .channel-signals span, .outcome-signals b { padding: 6px 8px; font-size: .43rem; }
+  .journey-stages { top: 47%; right: 18px; left: 18px; grid-template-columns: 1fr; transform: translateY(-42%); }
+  .journey-stages > div, .journey-stages > div:last-child { min-height: 86px; padding: 15px; }
+  .journey-stages strong { bottom: 15px; left: 15px; font-size: 1.25rem; }
+  .outcome-signals { right: 18px; bottom: 18px; left: 18px; }
   .story-engine-section { padding-inline: 18px; }
   .engine { grid-template-columns: 1fr; }
-  .engine-seed, .engine-story, .engine-distribute, .engine-signal, .engine-formats, .engine-next { grid-column: 1; }
+  .engine-seed, .engine-audience, .engine-story, .engine-distribute, .engine-action, .engine-signal, .engine-formats, .engine-next { grid-column: 1; }
   .engine-formats { grid-template-columns: 1fr 1fr; }
   .engine-node { min-height: 160px; }
   .engine-caption { align-items: flex-start; flex-direction: column; }
@@ -632,7 +732,8 @@ h1 em, h2 em, h3 em { color: var(--coral); font-weight: 400; }
   .format-marquee { font-size: 1.2rem; }
   .signal-console { margin-inline: -5px; }
   .console-head { gap: 20px; }
-  .signal-row { min-height: 100px; grid-template-columns: 23px 72px 1fr 36px; gap: 8px; }
+  .signal-row { min-height: 100px; grid-template-columns: 23px 72px 1fr 58px; gap: 8px; }
+  .signal-row strong { font-size: 1rem; }
   .signal-row small { margin-top: -36px; font-size: .51rem; }
   .relationship-steps { grid-template-columns: 1fr; }
   .relationship-steps article, .relationship-steps article:nth-child(3) { min-height: 290px; border-right: 0; border-bottom: 1px solid var(--line); }

@@ -12,6 +12,10 @@ export type InsightId = Opaque<string, 'InsightId'>;
 export type CreatorId = Opaque<string, 'CreatorId'>;
 export type EngagementId = Opaque<string, 'EngagementId'>;
 export type InvoiceId = Opaque<string, 'InvoiceId'>;
+export type MarketingPlanId = Opaque<string, 'MarketingPlanId'>;
+export type MarketingExperimentId = Opaque<string, 'MarketingExperimentId'>;
+export type ConversionEventId = Opaque<string, 'ConversionEventId'>;
+export type MarketingSpendId = Opaque<string, 'MarketingSpendId'>;
 export type CommandId = Opaque<string, 'CommandId'>;
 
 export abstract class DomainError extends Error {

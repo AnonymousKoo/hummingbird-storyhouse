@@ -7,7 +7,28 @@ import { createPublication, recordReceipt as publishReceipt, type PublicationInt
 import { createObservation, type MetricValue, type PerformanceObservation } from '../domain/analytics.js';
 import { createInsight, type Insight, type InsightGenerator } from '../domain/learning.js';
 import { calculateEconomics, createEngagement as makeEngagement, type Cost, type CreatorPayout, type Economics, type Engagement, type EngagementKind, type ServicePackage } from '../domain/commerce.js';
-import { ConflictError, NotFoundError, invariant, iso, type ApprovalId, type BrandId, type CampaignId, type CommandId, type ContentId, type DomainEvent, type EngagementId, type InsightId, type Money, type ObservationId, type PublicationId, type StrategyId, type TenantId } from '../domain/shared.js';
+import {
+  activateMarketingPlan as activatePlan,
+  completeMarketingExperiment as completeExperiment,
+  createConversionEvent,
+  createMarketingExperiment as makeExperiment,
+  createMarketingPlan as makeMarketingPlan,
+  createMarketingSpend as makeMarketingSpend,
+  linkCampaignToMarketingPlan,
+  startMarketingExperiment as startExperiment,
+  type AudienceSegment,
+  type ConversionEvent,
+  type ConversionEventType,
+  type ConversionGoal,
+  type FunnelStage,
+  type MarketingChannel,
+  type MarketingExperiment,
+  type MarketingOffer,
+  type MarketingPlan,
+  type MarketingSpend,
+  type MarketingVariant
+} from '../domain/marketing.js';
+import { ConflictError, NotFoundError, invariant, iso, type ApprovalId, type BrandId, type CampaignId, type CommandId, type ContentId, type ConversionEventId, type DomainEvent, type EngagementId, type InsightId, type MarketingExperimentId, type MarketingPlanId, type MarketingSpendId, type Money, type ObservationId, type PublicationId, type StrategyId, type TenantId } from '../domain/shared.js';
 import type { Clock, EventBus, IdGenerator, Repository, StoryhouseRepositories, TenantEntity } from '../ports/index.js';
 
 export interface StoryhouseDependencies { readonly repositories: StoryhouseRepositories; readonly clock: Clock; readonly ids: IdGenerator; readonly events: EventBus; readonly insightGenerator: InsightGenerator }
@@ -140,6 +161,108 @@ export class StoryhouseService {
     });
   }
 
+  createMarketingPlan(commandId: CommandId, input: { tenantId: TenantId; brandId: BrandId; strategyId: StrategyId; name: string; businessOutcome: string; positioning: string; offer: MarketingOffer; audienceSegments: readonly AudienceSegment[]; funnelStages: readonly FunnelStage[]; conversionGoals: readonly ConversionGoal[] }): Promise<MarketingPlan> {
+    return this.once(commandId, async () => {
+      await this.mustGet(this.deps.repositories.brands, input.tenantId, input.brandId, 'Brand');
+      const strategy = await this.mustGet(this.deps.repositories.strategies, input.tenantId, input.strategyId, 'Strategy');
+      invariant(strategy.brandId === input.brandId, 'Marketing plan brand must match strategy brand');
+      const plan = makeMarketingPlan({ ...input, id: this.id('marketing_plan') as MarketingPlanId, campaignIds: [], status: 'draft', createdAt: this.now() });
+      await this.deps.repositories.marketingPlans.save(plan);
+      await this.emit('marketing.plan_created', plan, { name: plan.name, brandId: plan.brandId, strategyId: plan.strategyId });
+      return plan;
+    });
+  }
+
+  activateMarketingPlan(commandId: CommandId, tenantId: TenantId, marketingPlanId: MarketingPlanId): Promise<MarketingPlan> {
+    return this.once(commandId, async () => {
+      const plan = await this.mustGet(this.deps.repositories.marketingPlans, tenantId, marketingPlanId, 'Marketing plan');
+      const strategy = await this.mustGet(this.deps.repositories.strategies, tenantId, plan.strategyId, 'Strategy');
+      invariant(strategy.status === 'active', 'Marketing plan requires an active strategy before activation');
+      const active = activatePlan(plan, this.now());
+      await this.deps.repositories.marketingPlans.save(active);
+      await this.emit('marketing.plan_activated', active, { status: active.status });
+      return active;
+    });
+  }
+
+  linkMarketingCampaign(commandId: CommandId, tenantId: TenantId, marketingPlanId: MarketingPlanId, campaignId: CampaignId): Promise<MarketingPlan> {
+    return this.once(commandId, async () => {
+      const plan = await this.mustGet(this.deps.repositories.marketingPlans, tenantId, marketingPlanId, 'Marketing plan');
+      const campaign = await this.mustGet(this.deps.repositories.campaigns, tenantId, campaignId, 'Campaign');
+      invariant(campaign.brandId === plan.brandId, 'Linked campaign brand must match marketing plan brand');
+      invariant(campaign.strategyId === plan.strategyId, 'Linked campaign strategy must match marketing plan strategy');
+      const linked = linkCampaignToMarketingPlan(plan, campaign.id);
+      if (linked.campaignIds.length !== plan.campaignIds.length) {
+        await this.deps.repositories.marketingPlans.save(linked);
+        await this.emit('marketing.campaign_linked', linked, { campaignId });
+      }
+      return linked;
+    });
+  }
+
+  createMarketingExperiment(commandId: CommandId, input: { tenantId: TenantId; marketingPlanId: MarketingPlanId; campaignId?: CampaignId; name: string; hypothesis: string; variants: readonly MarketingVariant[]; primaryMetric: string }): Promise<MarketingExperiment> {
+    return this.once(commandId, async () => {
+      const plan = await this.mustGet(this.deps.repositories.marketingPlans, input.tenantId, input.marketingPlanId, 'Marketing plan');
+      if (input.campaignId !== undefined) {
+        await this.mustGet(this.deps.repositories.campaigns, input.tenantId, input.campaignId, 'Campaign');
+        invariant(plan.campaignIds.includes(input.campaignId), 'Experiment campaign must already be linked to the marketing plan');
+      }
+      const experiment = makeExperiment({ ...input, id: this.id('marketing_experiment') as MarketingExperimentId, status: 'draft', createdAt: this.now() });
+      await this.deps.repositories.marketingExperiments.save(experiment);
+      await this.emit('marketing.experiment_created', experiment, { marketingPlanId: plan.id, variantCount: experiment.variants.length });
+      return experiment;
+    });
+  }
+
+  startMarketingExperiment(commandId: CommandId, tenantId: TenantId, marketingExperimentId: MarketingExperimentId): Promise<MarketingExperiment> {
+    return this.once(commandId, async () => {
+      const experiment = await this.mustGet(this.deps.repositories.marketingExperiments, tenantId, marketingExperimentId, 'Marketing experiment');
+      const plan = await this.mustGet(this.deps.repositories.marketingPlans, tenantId, experiment.marketingPlanId, 'Marketing plan');
+      invariant(plan.status === 'active', 'Marketing experiment requires an active marketing plan');
+      const running = startExperiment(experiment, this.now());
+      await this.deps.repositories.marketingExperiments.save(running);
+      await this.emit('marketing.experiment_started', running, { marketingPlanId: running.marketingPlanId });
+      return running;
+    });
+  }
+
+  completeMarketingExperiment(commandId: CommandId, tenantId: TenantId, marketingExperimentId: MarketingExperimentId, winnerVariantId: string): Promise<MarketingExperiment> {
+    return this.once(commandId, async () => {
+      const experiment = await this.mustGet(this.deps.repositories.marketingExperiments, tenantId, marketingExperimentId, 'Marketing experiment');
+      const completed = completeExperiment(experiment, winnerVariantId, this.now());
+      await this.deps.repositories.marketingExperiments.save(completed);
+      await this.emit('marketing.experiment_completed', completed, { marketingPlanId: completed.marketingPlanId, winnerVariantId });
+      return completed;
+    });
+  }
+
+  recordConversion(commandId: CommandId, input: { tenantId: TenantId; marketingPlanId: MarketingPlanId; campaignId?: CampaignId; contentId?: ContentId; publicationId?: PublicationId; eventType: ConversionEventType; channel: MarketingChannel; source: string; value?: Money; occurredAt: string; metadata: Readonly<Record<string, string>> }): Promise<ConversionEvent> {
+    return this.once(commandId, async () => {
+      const plan = await this.mustGet(this.deps.repositories.marketingPlans, input.tenantId, input.marketingPlanId, 'Marketing plan');
+      invariant(plan.status === 'active', 'Conversions require an active marketing plan');
+      await this.validateMarketingReferences(plan, input);
+      const conversion = createConversionEvent({ ...input, id: this.id('conversion') as ConversionEventId });
+      await this.deps.repositories.conversionEvents.save(conversion);
+      await this.emit('marketing.conversion_recorded', conversion, { marketingPlanId: plan.id, eventType: conversion.eventType, channel: conversion.channel });
+      return conversion;
+    });
+  }
+
+  recordMarketingSpend(commandId: CommandId, input: { tenantId: TenantId; marketingPlanId: MarketingPlanId; campaignId?: CampaignId; channel: MarketingChannel; amount: Money; occurredAt: string; note?: string }): Promise<MarketingSpend> {
+    return this.once(commandId, async () => {
+      const plan = await this.mustGet(this.deps.repositories.marketingPlans, input.tenantId, input.marketingPlanId, 'Marketing plan');
+      invariant(plan.status === 'active', 'Marketing spend requires an active marketing plan');
+      if (input.campaignId !== undefined) {
+        await this.mustGet(this.deps.repositories.campaigns, input.tenantId, input.campaignId, 'Campaign');
+        invariant(plan.campaignIds.includes(input.campaignId), 'Spend campaign must already be linked to the marketing plan');
+      }
+      const spend = makeMarketingSpend({ ...input, id: this.id('marketing_spend') as MarketingSpendId });
+      await this.deps.repositories.marketingSpend.save(spend);
+      await this.emit('marketing.spend_recorded', spend, { marketingPlanId: plan.id, channel: spend.channel, amount: spend.amount });
+      return spend;
+    });
+  }
+
   private once<T>(commandId: CommandId, operation: () => Promise<T>): Promise<T> {
     const existing = this.#commands.get(commandId); if (existing !== undefined) return existing as Promise<T>;
     const running = operation().catch((error: unknown) => { this.#commands.delete(commandId); throw error; }); this.#commands.set(commandId, running); return running;
@@ -147,6 +270,26 @@ export class StoryhouseService {
   private async mustGet<T extends TenantEntity>(repository: Repository<T>, tenantId: TenantId, id: T['id'], kind: string): Promise<T> { const value = await repository.get(tenantId, id); if (value === undefined) throw new NotFoundError(kind); return value; }
   private id(prefix: string): string { return this.deps.ids.next(prefix); }
   private now(): string { return iso(this.deps.clock.now()); }
+  private async validateMarketingReferences(plan: MarketingPlan, refs: { tenantId: TenantId; campaignId?: CampaignId; contentId?: ContentId; publicationId?: PublicationId }): Promise<void> {
+    let relatedCampaignId: CampaignId | undefined;
+    if (refs.campaignId !== undefined) {
+      await this.mustGet(this.deps.repositories.campaigns, refs.tenantId, refs.campaignId, 'Campaign');
+      relatedCampaignId = refs.campaignId;
+    }
+    if (refs.contentId !== undefined) {
+      const content = await this.mustGet(this.deps.repositories.content, refs.tenantId, refs.contentId, 'Content');
+      invariant(relatedCampaignId === undefined || relatedCampaignId === content.campaignId, 'Conversion content must belong to its campaign');
+      relatedCampaignId = content.campaignId;
+    }
+    if (refs.publicationId !== undefined) {
+      const publication = await this.mustGet(this.deps.repositories.publications, refs.tenantId, refs.publicationId, 'Publication');
+      invariant(refs.contentId === undefined || refs.contentId === publication.contentId, 'Conversion publication must belong to its content');
+      const content = await this.mustGet(this.deps.repositories.content, refs.tenantId, publication.contentId, 'Publication content');
+      invariant(relatedCampaignId === undefined || relatedCampaignId === content.campaignId, 'Conversion publication must belong to its campaign');
+      relatedCampaignId = content.campaignId;
+    }
+    if (relatedCampaignId !== undefined) invariant(plan.campaignIds.includes(relatedCampaignId), 'Conversion references must belong to a campaign linked to the marketing plan');
+  }
   private async emit(type: string, aggregate: TenantEntity, payload: unknown): Promise<void> {
     const event: DomainEvent = { id: this.deps.ids.next('event'), type, tenantId: aggregate.tenantId, aggregateId: aggregate.id, occurredAt: this.now(), payload }; await this.deps.events.publish([event]);
   }

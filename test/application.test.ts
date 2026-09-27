@@ -35,4 +35,37 @@ describe('application boundaries', () => {
     const { service } = await campaignFixture();
     await expect(service.advanceContent(commandId(), tenantA, 'missing' as ContentId, 'approved')).rejects.toThrow('dedicated workflows');
   });
+  it('coordinates marketing plans above matching campaigns', async () => {
+    const { service, repositories, brand, strategy, campaign } = await campaignFixture();
+    const plan = await service.createMarketingPlan(commandId(), {
+      tenantId: tenantA, brandId: brand.id, strategyId: strategy.id, name: 'Maker growth loop',
+      businessOutcome: 'Increase qualified workshop bookings', positioning: 'Practical teaching for local makers',
+      offer: { name: 'Maker session', promise: 'Leave with one finished project', cta: 'Book a session' },
+      audienceSegments: [{ id: 'new_makers', name: 'New makers', description: 'Neighbors beginning a craft', need: 'A welcoming first project' }],
+      funnelStages: [{ stage: 'conversion', objective: 'Earn bookings', cta: 'Book a session', channels: ['web'] }],
+      conversionGoals: [{ name: 'Workshop bookings', eventType: 'booking', target: 12 }]
+    });
+    const active = await service.activateMarketingPlan(commandId(), tenantA, plan.id);
+    expect(active.status).toBe('active');
+    const linked = await service.linkMarketingCampaign(commandId(), tenantA, plan.id, campaign.id);
+    const repeated = await service.linkMarketingCampaign(commandId(), tenantA, plan.id, campaign.id);
+    expect(repeated.campaignIds).toEqual([campaign.id]);
+    expect((await repositories.marketingPlans.get(tenantA, plan.id))?.campaignIds).toEqual([campaign.id]);
+    await expect(service.createMarketingExperiment(commandId(), {
+      tenantId: tenantA, marketingPlanId: plan.id, campaignId: 'campaign_missing' as typeof campaign.id,
+      name: 'Unlinked experiment', hypothesis: 'A missing campaign works', primaryMetric: 'booking',
+      variants: [{ id: 'a', label: 'A', description: 'A' }, { id: 'b', label: 'B', description: 'B' }]
+    })).rejects.toBeInstanceOf(NotFoundError);
+    expect(linked.status).toBe('active');
+  });
+
+  it('rejects cross-tenant marketing access', async () => {
+    const { service, brand, strategy } = await campaignFixture();
+    const plan = await service.createMarketingPlan(commandId(), {
+      tenantId: tenantA, brandId: brand.id, strategyId: strategy.id, name: 'Tenant-safe plan', businessOutcome: 'Protect tenant records', positioning: 'Safety first',
+      offer: { name: 'Safe offer', promise: 'Scoped records', cta: 'Continue' }, audienceSegments: [{ id: 'operators', name: 'Operators', description: 'Workspace operators', need: 'Safe access' }],
+      funnelStages: [{ stage: 'awareness', objective: 'Explain safety', cta: 'Learn', channels: ['web'] }], conversionGoals: [{ name: 'Safety reads', eventType: 'custom' }]
+    });
+    await expect(service.activateMarketingPlan(commandId(), tenantB, plan.id)).rejects.toBeInstanceOf(NotFoundError);
+  });
 });

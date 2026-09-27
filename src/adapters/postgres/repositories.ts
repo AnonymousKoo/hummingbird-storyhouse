@@ -9,6 +9,7 @@ import type { ContentItem } from '../../domain/content.js';
 import type { Creator } from '../../domain/creators.js';
 import type { PublicationIntent } from '../../domain/distribution.js';
 import type { Insight } from '../../domain/learning.js';
+import type { ConversionEvent, MarketingExperiment, MarketingPlan, MarketingSpend } from '../../domain/marketing.js';
 import { ConflictError, type TenantId } from '../../domain/shared.js';
 import type { Strategy } from '../../domain/strategy.js';
 import type { Repository, StoryhouseRepositories, TenantEntity } from '../../ports/index.js';
@@ -80,6 +81,10 @@ export function createPostgresRepositories(database: PostgresQueryable, options:
     insights: new PostgresRepository<Insight>(database, { table: 'insights', columns: (entity) => ({ strategy_id: entity.strategyId, campaign_id: entity.campaignId, observation_ids: entity.observationIds, created_at: entity.createdAt }) }, options),
     creators: new PostgresRepository<Creator>(database, { table: 'creators', columns: (entity) => ({ campaign_ids: entity.assignments.map((assignment) => assignment.campaignId) }) }, options),
     engagements: new PostgresRepository<Engagement>(database, { table: 'engagements', columns: (entity) => ({ campaign_ids: entity.campaignIds, starts_at: entity.startsAt }) }, options),
-    invoices: new PostgresRepository<Invoice>(database, { table: 'invoices', columns: (entity) => ({ engagement_id: entity.engagementId }) }, options)
+    invoices: new PostgresRepository<Invoice>(database, { table: 'invoices', columns: (entity) => ({ engagement_id: entity.engagementId }) }, options),
+    marketingPlans: new PostgresRepository<MarketingPlan>(database, { table: 'marketing_plans', columns: (entity) => ({ brand_id: entity.brandId, strategy_id: entity.strategyId, campaign_ids: entity.campaignIds, created_at: entity.createdAt, activated_at: entity.activatedAt ?? null }) }, options),
+    marketingExperiments: new PostgresRepository<MarketingExperiment>(database, { table: 'marketing_experiments', columns: (entity) => ({ marketing_plan_id: entity.marketingPlanId, campaign_id: entity.campaignId ?? null, created_at: entity.createdAt, started_at: entity.startedAt ?? null, completed_at: entity.completedAt ?? null }) }, options),
+    conversionEvents: new PostgresRepository<ConversionEvent>(database, { table: 'conversion_events', columns: (entity) => ({ marketing_plan_id: entity.marketingPlanId, campaign_id: entity.campaignId ?? null, content_id: entity.contentId ?? null, publication_id: entity.publicationId ?? null, occurred_at: entity.occurredAt }) }, options),
+    marketingSpend: new PostgresRepository<MarketingSpend>(database, { table: 'marketing_spend', columns: (entity) => ({ marketing_plan_id: entity.marketingPlanId, campaign_id: entity.campaignId ?? null, occurred_at: entity.occurredAt }) }, options)
   };
 }

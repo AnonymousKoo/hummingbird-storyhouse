@@ -49,7 +49,7 @@ export function IntakeForm() {
         <span>What are you trying to move?</span>
         <textarea
           name="objective"
-          placeholder="A belief, an audience, a launch, a conversation…"
+          placeholder="A growth goal, business outcome, audience, launch, or conversation…"
           required
           rows={4}
         />
@@ -59,11 +59,12 @@ export function IntakeForm() {
           <span>Interested in</span>
           <select defaultValue="" name="interest" required>
             <option disabled value="">Choose a direction</option>
-            <option value="strategy">Strategy</option>
+            <option value="brand-marketing-strategy">Brand &amp; marketing strategy</option>
+            <option value="growth-marketing">Growth marketing</option>
             <option value="campaign">Campaign</option>
             <option value="production">Production</option>
             <option value="distribution">Distribution</option>
-            <option value="partnership">Partnership</option>
+            <option value="creator-partnership">Creator partnership</option>
             <option value="originals">Originals</option>
           </select>
         </label>

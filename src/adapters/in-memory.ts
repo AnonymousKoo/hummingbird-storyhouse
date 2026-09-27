@@ -11,6 +11,7 @@ import type { PerformanceObservation } from '../domain/analytics.js';
 import type { Insight } from '../domain/learning.js';
 import type { Creator } from '../domain/creators.js';
 import type { Engagement, Invoice } from '../domain/commerce.js';
+import type { ConversionEvent, MarketingExperiment, MarketingPlan, MarketingSpend } from '../domain/marketing.js';
 
 export class InMemoryRepository<T extends TenantEntity> implements Repository<T> {
   readonly #items = new Map<string, T>();
@@ -32,7 +33,9 @@ export function createInMemoryRepositories(): Repositories {
     brands: new InMemoryRepository<Brand>(), strategies: new InMemoryRepository<Strategy>(), campaigns: new InMemoryRepository<Campaign>(),
     content: new InMemoryRepository<ContentItem>(), approvals: new InMemoryRepository<ApprovalRequest>(), assets: new InMemoryRepository<MediaAsset>(),
     publications: new InMemoryRepository<PublicationIntent>(), observations: new InMemoryRepository<PerformanceObservation>(), insights: new InMemoryRepository<Insight>(),
-    creators: new InMemoryRepository<Creator>(), engagements: new InMemoryRepository<Engagement>(), invoices: new InMemoryRepository<Invoice>()
+    creators: new InMemoryRepository<Creator>(), engagements: new InMemoryRepository<Engagement>(), invoices: new InMemoryRepository<Invoice>(),
+    marketingPlans: new InMemoryRepository<MarketingPlan>(), marketingExperiments: new InMemoryRepository<MarketingExperiment>(),
+    conversionEvents: new InMemoryRepository<ConversionEvent>(), marketingSpend: new InMemoryRepository<MarketingSpend>()
   };
 }
 

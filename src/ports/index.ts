@@ -8,6 +8,7 @@ import type { ContentItem } from '../domain/content.js';
 import type { Creator } from '../domain/creators.js';
 import type { PublicationIntent } from '../domain/distribution.js';
 import type { Insight } from '../domain/learning.js';
+import type { ConversionEvent, MarketingExperiment, MarketingPlan, MarketingSpend } from '../domain/marketing.js';
 import type { CommandId, DomainEvent, TenantId } from '../domain/shared.js';
 import type { Strategy } from '../domain/strategy.js';
 
@@ -35,6 +36,10 @@ export interface StoryhouseRepositories {
   readonly creators: Repository<Creator>;
   readonly engagements: Repository<Engagement>;
   readonly invoices: Repository<Invoice>;
+  readonly marketingPlans: Repository<MarketingPlan>;
+  readonly marketingExperiments: Repository<MarketingExperiment>;
+  readonly conversionEvents: Repository<ConversionEvent>;
+  readonly marketingSpend: Repository<MarketingSpend>;
 }
 
 export interface CommandReceipt<TResult = unknown> {

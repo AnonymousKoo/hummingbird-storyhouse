@@ -69,6 +69,10 @@ beforeEach(async () => {
       storyhouse.creators,
       storyhouse.engagements,
       storyhouse.invoices,
+      storyhouse.marketing_experiments,
+      storyhouse.conversion_events,
+      storyhouse.marketing_spend,
+      storyhouse.marketing_plans,
       storyhouse.command_receipts,
       storyhouse.outbox_events
     CASCADE
@@ -79,7 +83,7 @@ afterAll(async () => { await pool.end(); });
 
 describe('Postgres persistence', () => {
   it('applies ordered migrations to an empty database and is repeatable', async () => {
-    expect(firstMigrationRun).toEqual(['001_initial_storyhouse.sql']);
+    expect(firstMigrationRun).toEqual(['001_initial_storyhouse.sql', '002_marketing_growth.sql']);
     await expect(migrate(pool)).resolves.toEqual([]);
     const tables = await pool.query<{ readonly table_name: string }>(
       `SELECT table_name FROM information_schema.tables WHERE table_schema = 'storyhouse' ORDER BY table_name`
@@ -88,11 +92,16 @@ describe('Postgres persistence', () => {
       'brands', 'strategies', 'campaigns', 'content_items', 'approval_requests', 'media_assets',
       'publication_intents', 'performance_observations', 'insights', 'creators', 'engagements',
       'invoices', 'command_receipts', 'outbox_events', 'schema_migrations'
+      , 'marketing_plans', 'marketing_experiments', 'conversion_events', 'marketing_spend'
     ]));
     const ledger = await pool.query<{ readonly checksum: string }>(
       `SELECT checksum FROM storyhouse.schema_migrations WHERE name = '001_initial_storyhouse.sql'`
     );
     expect(ledger.rows[0]?.checksum).toMatch(/^[0-9a-f]{64}$/);
+    const marketingLedger = await pool.query<{ readonly checksum: string }>(
+      `SELECT checksum FROM storyhouse.schema_migrations WHERE name = '002_marketing_growth.sql'`
+    );
+    expect(marketingLedger.rows[0]?.checksum).toMatch(/^[0-9a-f]{64}$/);
     const schema = await pool.query<{ readonly public_access: boolean }>(`
       SELECT EXISTS (
         SELECT 1
@@ -417,5 +426,68 @@ describe('Postgres persistence', () => {
     const eventCount = Number((await pool.query<CountRow>('SELECT count(*) FROM storyhouse.outbox_events WHERE tenant_id = $1', [tenantA])).rows[0]?.count);
     expect(receiptCount).toBe(17);
     expect(eventCount).toBe(17);
+  });
+
+  it('runs the durable marketing path with tenant-safe round trips and atomic receipts/outbox events', async () => {
+    const durable = gateway(new SequenceIdGenerator());
+    const brand = await durable.execute({
+      commandId: nextCommand(), tenantId: tenantA, type: 'brand.onboard',
+      payload: { organizationName: 'Fictional Orchard Guild', name: 'Signal Finch', profile: { purpose: 'Teach fictional orchard craft.', audiences: ['city growers'], voice: ['useful'], objectives: ['qualified bookings'], constraints: [], platforms: ['video', 'email'] } }
+    });
+    const draft = await durable.execute({
+      commandId: nextCommand(), tenantId: tenantA, type: 'strategy.create',
+      payload: { brandId: brand.id, version: 1, goals: ['qualified bookings'], pillars: ['orchard craft'], channels: [{ channel: 'video', role: 'teach', cadencePerWeek: 2 }], kpis: [{ metric: 'bookings', target: 12, period: 'month' }] }
+    });
+    const strategy = await durable.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'strategy.activate', payload: { strategyId: draft.id } });
+    const campaign = await durable.execute({
+      commandId: nextCommand(), tenantId: tenantA, type: 'campaign.create',
+      payload: { brandId: brand.id, strategyId: strategy.id, name: 'Fictional Orchard Sessions', goals: ['teach and convert'], startAt: '2026-04-02T00:00:00.000Z', endAt: '2026-05-01T00:00:00.000Z', budget: money(150_000, 'USD'), channels: ['video', 'email'], deliverables: ['field film'], assigneeIds: [] }
+    });
+    const plan = await durable.execute({
+      commandId: nextCommand(), tenantId: tenantA, type: 'marketing.create_plan',
+      payload: {
+        brandId: brand.id, strategyId: strategy.id, name: 'Orchard workshop growth', businessOutcome: 'Earn qualified workshop bookings', positioning: 'Practical orchard lessons for city growers',
+        offer: { name: 'Orchard session', promise: 'Learn one seasonal skill in an afternoon', cta: 'Reserve a session' },
+        audienceSegments: [{ id: 'city_growers', name: 'City growers', description: 'New growers with small plots', need: 'Confident seasonal guidance' }],
+        funnelStages: [{ stage: 'awareness', objective: 'Earn relevant attention', cta: 'Watch the field lesson', channels: ['organic_social', 'creator'] }, { stage: 'conversion', objective: 'Earn reservations', cta: 'Reserve a session', channels: ['email', 'web'] }],
+        conversionGoals: [{ name: 'Qualified growers', eventType: 'qualified_lead', target: 20 }, { name: 'Workshop purchases', eventType: 'purchase', target: 8, value: money(12_500, 'USD') }]
+      }
+    });
+    const active = await durable.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'marketing.activate_plan', payload: { marketingPlanId: plan.id } });
+    const linked = await durable.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'marketing.link_campaign', payload: { marketingPlanId: plan.id, campaignId: campaign.id } });
+    const spend = await durable.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'marketing.record_spend', payload: { marketingPlanId: plan.id, campaignId: campaign.id, channel: 'paid_social', amount: money(25_000, 'USD'), occurredAt: '2026-04-08T00:00:00.000Z', note: 'Fictional launch placement' } });
+    const conversion = await durable.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'marketing.record_conversion', payload: { marketingPlanId: plan.id, campaignId: campaign.id, eventType: 'purchase', channel: 'paid_social', source: 'fictional-orchard-film', value: money(50_000, 'USD'), occurredAt: '2026-04-09T00:00:00.000Z', metadata: { offer: 'orchard-session' } } });
+    const experiment = await durable.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'marketing.create_experiment', payload: { marketingPlanId: plan.id, campaignId: campaign.id, name: 'Workshop CTA framing', hypothesis: 'Seasonal specificity earns more bookings', variants: [{ id: 'season', label: 'Season', description: 'Name the seasonal skill' }, { id: 'place', label: 'Place', description: 'Name the orchard setting' }], primaryMetric: 'purchase_rate' } });
+    await durable.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'marketing.start_experiment', payload: { marketingExperimentId: experiment.id } });
+    const completed = await durable.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'marketing.complete_experiment', payload: { marketingExperimentId: experiment.id, winnerVariantId: 'season' } });
+
+    const repositories = createPostgresRepositories(pool);
+    expect(await repositories.marketingPlans.get(tenantA, plan.id)).toEqual(linked);
+    expect(await repositories.marketingPlans.get(tenantB, plan.id)).toBeUndefined();
+    expect(await repositories.marketingExperiments.get(tenantA, experiment.id)).toEqual(completed);
+    expect(await repositories.marketingExperiments.get(tenantB, experiment.id)).toBeUndefined();
+    expect(await repositories.conversionEvents.get(tenantA, conversion.id)).toEqual(conversion);
+    expect(await repositories.conversionEvents.get(tenantB, conversion.id)).toBeUndefined();
+    expect(await repositories.marketingSpend.get(tenantA, spend.id)).toEqual(spend);
+    expect(await repositories.marketingSpend.get(tenantB, spend.id)).toBeUndefined();
+    expect(active.status).toBe('active');
+    expect(completed).toMatchObject({ status: 'completed', winnerVariantId: 'season' });
+    expect(Number((await pool.query<CountRow>(`SELECT count(*) FROM storyhouse.command_receipts WHERE tenant_id = $1`, [tenantA])).rows[0]?.count)).toBe(12);
+    expect(Number((await pool.query<CountRow>(`SELECT count(*) FROM storyhouse.outbox_events WHERE tenant_id = $1`, [tenantA])).rows[0]?.count)).toBe(12);
+  });
+
+  it('rolls back a marketing aggregate, receipt, and outbox event on late failure', async () => {
+    const setup = gateway(new SequenceIdGenerator());
+    const brand = await setup.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'brand.onboard', payload: { organizationName: 'Fictional Lantern Cooperative', name: 'Moss Current', profile: { purpose: 'Test marketing rollback.', audiences: ['testers'], voice: ['plain'], objectives: ['verify'], constraints: [], platforms: [] } } });
+    const draft = await setup.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'strategy.create', payload: { brandId: brand.id, version: 1, goals: ['verify'], pillars: ['safe growth'], channels: [], kpis: [] } });
+    const plan = await setup.execute({ commandId: nextCommand(), tenantId: tenantA, type: 'marketing.create_plan', payload: { brandId: brand.id, strategyId: draft.id, name: 'Rollback growth', businessOutcome: 'Verify atomic rollback', positioning: 'Safe growth records', offer: { name: 'Test offer', promise: 'Atomic behavior', cta: 'Verify' }, audienceSegments: [{ id: 'testers', name: 'Testers', description: 'Fictional testers', need: 'Safe transactions' }], funnelStages: [{ stage: 'conversion', objective: 'Verify', cta: 'Check', channels: ['web'] }], conversionGoals: [{ name: 'Checks', eventType: 'custom' }] } });
+    await pool.query(`INSERT INTO storyhouse.outbox_events (id, tenant_id, aggregate_id, event_type, payload, occurred_at) VALUES ('marketing_event_duplicate', $1, 'existing', 'test.seeded', '{}', '2026-04-01T00:00:00.000Z')`, [tenantA]);
+    const ids: IdGenerator = { next(prefix) { return prefix === 'event' ? 'marketing_event_duplicate' : `${prefix}_rolled_back`; } };
+    const commandId = 'marketing_command_rollback' as CommandId;
+    const beforeOutbox = Number((await pool.query<CountRow>('SELECT count(*) FROM storyhouse.outbox_events')).rows[0]?.count);
+    await expect(gateway(ids).execute({ commandId, tenantId: tenantA, type: 'marketing.record_spend', payload: { marketingPlanId: plan.id, channel: 'web', amount: money(1_000, 'USD'), occurredAt: '2026-04-11T00:00:00.000Z' } })).rejects.toThrow();
+    expect(await createPostgresRepositories(pool).marketingSpend.get(tenantA, 'marketing_spend_rolled_back' as never)).toBeUndefined();
+    expect(await new PostgresCommandReceiptRepository(pool).get(tenantA, commandId)).toBeUndefined();
+    expect(Number((await pool.query<CountRow>('SELECT count(*) FROM storyhouse.outbox_events')).rows[0]?.count)).toBe(beforeOutbox);
   });
 });

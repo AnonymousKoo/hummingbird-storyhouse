@@ -20,11 +20,11 @@ const sans = Manrope({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://hummingbirdstoryhouse.com'),
-  title: 'Hummingbird Storyhouse — Stories built to move',
+  title: 'Hummingbird Storyhouse — Media + marketing built to move',
   description:
-    'Hummingbird Storyhouse builds stories, media systems, and original worlds designed to move through culture.',
+    'Hummingbird Storyhouse connects strategy, creative, production, distribution, growth marketing, and intelligence to move people and business.',
   applicationName: 'Hummingbird Storyhouse',
-  keywords: ['media company', 'storytelling', 'creative strategy', 'multimedia production', 'original media'],
+  keywords: ['media and marketing company', 'brand and audience strategy', 'growth marketing', 'multimedia production', 'campaign distribution'],
   authors: [{ name: 'Hummingbird Storyhouse' }],
   creator: 'Hummingbird Storyhouse',
   openGraph: {
@@ -33,12 +33,12 @@ export const metadata: Metadata = {
     url: '/',
     siteName: 'Hummingbird Storyhouse',
     title: 'Stories don’t sit still. Neither do we.',
-    description: 'Stories, media systems, and original worlds designed to move through culture.'
+    description: 'Stories, campaigns, media systems, and growth loops designed to move people and business.'
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Stories don’t sit still. Neither do we.',
-    description: 'Stories, media systems, and original worlds designed to move through culture.'
+    description: 'Stories, campaigns, media systems, and growth loops designed to move people and business.'
   },
   alternates: { canonical: '/' }
 };

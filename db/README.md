@@ -30,7 +30,7 @@ Migration files in `db/migrations` are ordered by their zero-padded numeric pref
 3. applies each unseen SQL file in its own transaction; and
 4. records the filename and SHA-256 content checksum only after successful application.
 
-Every startup verifies the checksum of each already-applied filename and fails loudly on drift. Never edit a migration that has shipped. Add the next ordered file. Migrations must preserve opaque text IDs, tenant scoping, JSONB round-tripping, relational projections, and scoped foreign keys.
+Every startup verifies the checksum of each already-applied filename and fails loudly on drift. Never edit a migration that has shipped. Add the next ordered file. Migrations must preserve opaque text IDs, tenant scoping, JSONB round-tripping, relational projections, and scoped foreign keys. Migration `002_marketing_growth.sql` adds tenant-scoped marketing plans, experiments, explicit conversion events, and channel spend while keeping existing campaigns as the execution records.
 
 ## Durable command and outbox seam
 

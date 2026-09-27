@@ -20,6 +20,7 @@ The internal operator app is a Node-runtime transport at `apps/operator`. Server
 | --- | --- | --- |
 | Clients/Brands | Brand | Organization identity and brand brain |
 | Strategy | Strategy | Versioned goals, pillars, channels, KPI targets |
+| Marketing/Growth | MarketingPlan / MarketingExperiment / ConversionEvent / MarketingSpend | Audience, positioning, offer, funnel/channel roles, experiments, explicit attribution, spend and performance math |
 | Campaigns | Campaign | Dates, budget, channels, deliverables, assignments |
 | Content | ContentItem | Ideas, briefs, copy/variants, lineage, metadata |
 | Production | ContentItem lifecycle | Ordered production state machine |
@@ -51,12 +52,12 @@ The private `storyhouse` schema also owns the migration ledger, tenant-scoped co
 
 ## Operator read layer
 
-`OperatorQueryService` is a pragmatic application read layer over repository ports and a read-only activity port. It owns cross-context joins for dashboard, brand, campaign, content, approval, distribution, analytics, insight, and commerce views, so Next.js pages do not encode business joins. Every method requires a tenant ID. `PostgresOutboxRepository.listRecent` supplies committed activity, also with a tenant predicate. The read layer does not introduce event sourcing or a second write model.
+`OperatorQueryService` is a pragmatic application read layer over repository ports and a read-only activity port. It owns cross-context joins for dashboard, brand, campaign, content, approval, distribution, analytics, insight, commerce, and transport-neutral marketing plan/performance views, so Next.js pages do not encode business joins. Every method requires a tenant ID. `PostgresOutboxRepository.listRecent` supplies committed activity, also with a tenant predicate. The read layer does not introduce event sourcing or a second write model.
 
 Operator writes retain the Phase 2 transaction boundary: aggregate changes, receipt, and outbox events share one transaction-scoped client. Current tenant selection comes from `STORYHOUSE_TENANT_ID`; it is deliberately not represented as authentication or authorization.
 
 ## Avuhz integration seam
 
-Avuhz can later orchestrate Hummingbird Storyhouse by submitting typed commands and dispatching/consuming committed outbox events. It must not import domain internals, mutate aggregates directly, or become the source of Hummingbird business rules. No Avuhz client or worker is implemented in this phase.
+Avuhz can later orchestrate Hummingbird Storyhouse by submitting typed commands and dispatching/consuming committed outbox events. Marketing rules—including audience/offer definitions, funnel stages, attribution records, experiment state, and performance math—remain Hummingbird-owned. Avuhz must not import domain internals, mutate aggregates directly, or become the source of Hummingbird business rules. No Avuhz client or worker is implemented in this phase.
 
 Hosted database selection, identity/authentication, tenant RLS tied to that identity, API transport, scheduler/worker operation, platform adapters, and binary asset storage remain intentionally deferred.

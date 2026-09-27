@@ -3,6 +3,8 @@
 - This repository is business/domain/application logic, not a website. Do not add UI frameworks, HTTP servers, databases, auth providers, Supabase, Vercel, or external APIs without an explicit task.
 - Preserve the dependency direction: domain is framework-free; application coordinates domain through ports; adapters implement ports. Never import adapters from a domain module.
 - Put business invariants and state transitions beside the owning aggregate. Keep AI/probabilistic behavior behind a port.
+- Marketing is a Hummingbird-owned bounded context. Preserve the split: MarketingPlan coordinates outcomes/audience/offer/funnel/experiments/attribution above existing Campaign execution. Do not move these rules into Avuhz or create a duplicate marketing campaign aggregate.
+- Marketing is a Hummingbird-owned bounded context. Keep audience, offer, funnel, attribution, experiment, spend, and performance rules in Hummingbird; future Avuhz integrations may orchestrate those rules but must not own or bypass them.
 - Every aggregate and repository operation must preserve the explicit tenant boundary. Test both valid access and cross-tenant failure for new workflows.
 - Use branded IDs, injected clocks/IDs, ISO timestamps, and integer-minor-unit Money. Do not use floating-point currency amounts.
 - Add repository ports for new aggregate roots. Add a Unit of Work only with a concrete atomic persistence need.
