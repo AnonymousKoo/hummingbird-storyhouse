@@ -2,7 +2,7 @@
 
 Hummingbird Storyhouse Core is the domain and application foundation for a Black-owned multimedia/content company. It turns a client objective into a measurable operating loop: brand intelligence → strategy → campaign → content → production → approval → distribution → analytics → learning → renewal economics.
 
-This repository is a TypeScript library and executable domain demo. It is deliberately **not a website**. It supports both a zero-infrastructure in-memory path and a restart-safe PostgreSQL command path.
+This repository contains a TypeScript domain/application core plus the internal Next.js operator app in `apps/operator`. It is not a public marketing website. The core supports both a zero-infrastructure in-memory path and a restart-safe PostgreSQL command path; the operator app uses the durable path exclusively.
 
 ## Quickstart
 
@@ -27,12 +27,26 @@ npm run db:down
 
 `DATABASE_URL` may override the local default for migration and integration scripts. Integration tests refuse to clean a database whose name does not end in `_test`. See [db/README.md](./db/README.md).
 
+## Internal operator app
+
+The local-only operator workspace covers Command Center, Brands, Campaigns, Content, Approvals, Distribution, Analytics, Insights, and Commerce. It reads tenant-scoped application read models and submits all writes through typed durable commands.
+
+```sh
+npm run db:up
+npm run db:migrate
+npm run operator:seed
+npm run operator:dev
+```
+
+The documented commands default only for local development to `storyhouse_test` and tenant `tenant_storyhouse_demo`. Production-like runs must explicitly provide `DATABASE_URL` and `STORYHOUSE_TENANT_ID`; the tenant environment value is context, not an authorization mechanism. See [apps/operator/README.md](./apps/operator/README.md).
+
 ## Architecture
 
 The core is organized as a framework-independent modular monolith:
 
 - `src/domain`: twelve bounded contexts, value objects, transitions, and invariants.
 - `src/application`: useful cross-context commands and the end-to-end operating loop.
+- `src/application/operator-queries.ts`: transport-neutral, tenant-explicit operator read models.
 - `src/ports`: clocks, IDs, events, storage, transaction, receipt, outbox, and repository contracts.
 - `src/adapters`: deterministic in-memory implementations plus `pg` repositories, migrations, outbox, receipts, unit of work, and durable command gateway.
 - `db/migrations`: ordered SQL for the private `storyhouse` schema.
@@ -56,6 +70,7 @@ Dependencies point inward: adapters depend on ports/domain; application coordina
 - Generate production-safe, prefix-readable UUID IDs by default for durable commands; sequential IDs remain limited to deterministic tests and the demo.
 - Lock transactional aggregate reads so competing state transitions observe committed state instead of overwriting it.
 - Read pending outbox events in deterministic order and report missing or cross-tenant dispatch mutations to a future worker.
+- Operate the complete local workflow through a responsive, server-rendered internal workspace with real PostgreSQL reads and typed-command writes.
 
 ## Example golden path
 
@@ -71,4 +86,4 @@ npm audit
 
 ## Deliberately not built
 
-There is no UI, HTTP server, hosted database, object storage implementation, authentication provider, RLS policy, background scheduler/outbox worker, AI vendor, or social-platform integration. There is no Supabase or Vercel setup. Hosted database selection and authorization policy remain deferred until the identity model is finalized. Avuhz is not a dependency: future orchestration can issue idempotent commands, consume the outbox, and implement ports without entering the domain core.
+There is no public marketing UI, hosted database, object storage implementation, authentication provider, RLS policy, background scheduler/outbox worker, AI vendor, or social-platform integration. There is no Supabase or Vercel setup. Hosted database selection and authorization policy remain deferred until the identity model is finalized. Avuhz is not a dependency: future orchestration can issue idempotent commands, consume the outbox, and implement ports without entering the domain core.

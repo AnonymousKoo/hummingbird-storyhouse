@@ -1,0 +1,21 @@
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { NotFoundError } from 'hummingbird-storyhouse-core';
+import { Notice, Status } from '../../../components/chrome';
+import { dateTime, label } from '../../../lib/format';
+import { advanceContent, requestApproval } from '../../../server/actions';
+import { queries, tenantId } from '../../../server/runtime';
+
+export const dynamic = 'force-dynamic';
+export default async function ContentDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ error?: string; success?: string }> }) {
+  const [{ id }, message] = await Promise.all([params, searchParams]); let item;
+  try { item = await queries().contentDetail(tenantId(), id); } catch (error) { if (error instanceof NotFoundError) notFound(); throw error; }
+  const { content, campaign, brand } = item;
+  const hasPending = item.approvals.some((approval) => approval.status === 'pending');
+  return <><div className="detail-hero"><span className="eyebrow">{brand.name} · {campaign.name}</span><h1>{content.title}</h1><p>{content.idea}</p><Status value={content.state} /></div><Notice error={message.error} success={message.success} />
+    <div className="detail-grid"><section className="panel"><h2>Creative brief</h2><p>{content.brief}</p><h3>Opening hooks</h3><ol className="prose-list">{content.hooks.map((hook) => <li key={hook}>{hook}</li>)}</ol><h3>Call to action</h3><p>{content.cta}</p><div className="tag-list">{Object.entries(content.metadata).map(([key, value]) => <span className="tag" key={key}>{key}: {value}</span>)}</div></section>
+      <aside style={{ display: 'grid', gap: 20 }}><section className="panel"><h2>Next move</h2><p><Status value={content.state} /> · Updated {dateTime(content.updatedAt)}</p>{item.nextState !== undefined && <form action={advanceContent}><input type="hidden" name="contentId" value={content.id} /><input type="hidden" name="to" value={item.nextState} /><button className="button primary">Advance to {label(item.nextState)}</button></form>}{content.state === 'review' && !hasPending && <form action={requestApproval}><input type="hidden" name="contentId" value={content.id} /><label>Requested by<input name="requestedBy" defaultValue="Storyhouse producer" required /></label><label>Reviewer<input name="reviewer" defaultValue={`${brand.name} lead`} required /></label><button className="button amber">Request approval</button></form>}{content.state === 'review' && hasPending && <Link href="/approvals" className="button amber">Open pending approval</Link>}{content.state === 'approved' && <Link href="/distribution" className="button primary">Schedule distribution</Link>}</section>
+      <section className="panel"><h2>Lineage</h2><dl className="definition"><dt>Content ID</dt><dd>{content.id}</dd><dt>Parent</dt><dd>{item.parent ? <Link href={`/content/${item.parent.id}`}>{item.parent.title}</Link> : 'Original'}</dd><dt>Variant</dt><dd>{content.variantLabel ?? 'Primary'}</dd><dt>Children</dt><dd>{item.variants.length}</dd></dl></section></aside></div>
+    <section style={{ marginTop: 30 }} className="panel"><h2>Approval, publication & performance trail</h2>{item.approvals.length === 0 && item.publications.length === 0 && item.observations.length === 0 ? <p>No approval, distribution, or metric records yet.</p> : <div className="audit">{item.approvals.flatMap((approval) => approval.history).map((entry, index) => <article key={`${entry.at}-${index}`}><Status value={entry.action} /><p><strong>{entry.actor}</strong> · {entry.note ?? 'No note'}</p><small>{dateTime(entry.at)}</small></article>)}{item.publications.map((publication) => <article key={publication.id}><Status value={publication.status} /><p><strong>{publication.channel}</strong> · {publication.receipt?.externalId ?? 'Awaiting receipt'}</p><small>{dateTime(publication.receipt?.publishedAt ?? publication.scheduledAt)}</small></article>)}{item.observations.map((observation) => <article key={observation.id}><Status value="observed" /><p><strong>Performance observation</strong> · {observation.metrics.map((metric) => `${label(metric.name)} ${metric.unit === 'ratio' ? `${Math.round(metric.value * 100)}%` : metric.value.toLocaleString()}`).join(' · ')}</p><small>{dateTime(observation.observedAt)}</small></article>)}</div>}</section>
+  </>;
+}

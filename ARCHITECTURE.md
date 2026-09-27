@@ -12,6 +12,8 @@ transport / orchestrator → typed commands → application → domain
                                           └─ PostgreSQL
 ```
 
+The internal operator app is a Node-runtime transport at `apps/operator`. Server components consume `OperatorQueryService`; server actions translate validated form input into typed commands and execute `PostgresDurableCommandGateway`. Browser code never receives database credentials or imports PostgreSQL adapters.
+
 ## Bounded contexts
 
 | Context | Aggregate root | Responsibility |
@@ -46,6 +48,12 @@ There is a repository port per aggregate root, plus `Clock`, `IdGenerator`, `Eve
 The PostgreSQL adapter uses `pg` without an ORM. Aggregate payloads round-trip losslessly through JSONB while important relationships and timestamps are duplicated into relational columns for constraints and access paths. Every aggregate query includes a tenant predicate. The durable service composes repositories whose point reads use `SELECT ... FOR UPDATE`, so different command IDs targeting the same aggregate serialize and re-evaluate domain transitions against committed state. Batch reads acquire locks in sorted ID order. Composite foreign keys include `tenant_id` to reject cross-tenant references where the relationship is singular; array relationships remain queryable relational columns and are validated by application workflows.
 
 The private `storyhouse` schema also owns the migration ledger, tenant-scoped command receipts, and outbox. Bootstrap revokes `PUBLIC` schema access. The advisory-locked migration runner records a SHA-256 checksum with each filename and refuses to run when an applied file has drifted. Outbox readers require a tenant and order pending records by occurrence time then event ID; dispatch mutations preserve the tenant predicate and raise a not-found domain error when no matching row exists. Dispatch is deliberately separate from transaction execution.
+
+## Operator read layer
+
+`OperatorQueryService` is a pragmatic application read layer over repository ports and a read-only activity port. It owns cross-context joins for dashboard, brand, campaign, content, approval, distribution, analytics, insight, and commerce views, so Next.js pages do not encode business joins. Every method requires a tenant ID. `PostgresOutboxRepository.listRecent` supplies committed activity, also with a tenant predicate. The read layer does not introduce event sourcing or a second write model.
+
+Operator writes retain the Phase 2 transaction boundary: aggregate changes, receipt, and outbox events share one transaction-scoped client. Current tenant selection comes from `STORYHOUSE_TENANT_ID`; it is deliberately not represented as authentication or authorization.
 
 ## Avuhz integration seam
 

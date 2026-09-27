@@ -63,6 +63,11 @@ export interface OutboxRepository {
   markFailed(tenantId: TenantId, eventId: string, error: string): Promise<void>;
 }
 
+/** Read-only access to committed domain activity for operator-facing read models. */
+export interface ActivityRepository {
+  listRecent(tenantId: TenantId, limit?: number): Promise<readonly OutboxRecord[]>;
+}
+
 export interface UnitOfWork<TContext> {
   transaction<TResult>(operation: (context: TContext) => Promise<TResult>): Promise<TResult>;
 }

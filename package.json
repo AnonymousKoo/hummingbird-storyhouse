@@ -29,7 +29,12 @@
     "db:up": "docker compose up -d --wait postgres",
     "db:down": "docker compose down -v",
     "db:migrate": "DATABASE_URL=${DATABASE_URL:-postgresql://postgres@127.0.0.1:55432/storyhouse_test} tsx src/adapters/postgres/migrate-cli.ts",
-    "demo": "tsx src/demo.ts"
+    "demo": "tsx src/demo.ts",
+    "operator:deps": "npm ci --prefix apps/operator",
+    "operator:dev": "DATABASE_URL=${DATABASE_URL:-postgresql://postgres@127.0.0.1:55432/storyhouse_test} STORYHOUSE_TENANT_ID=${STORYHOUSE_TENANT_ID:-tenant_storyhouse_demo} npm run dev --prefix apps/operator",
+    "operator:build": "npm run build && npm run operator:deps && npm run build --prefix apps/operator",
+    "operator:check": "npm run operator:build",
+    "operator:seed": "DATABASE_URL=${DATABASE_URL:-postgresql://postgres@127.0.0.1:55432/storyhouse_test} STORYHOUSE_TENANT_ID=${STORYHOUSE_TENANT_ID:-tenant_storyhouse_demo} tsx apps/operator/scripts/seed.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

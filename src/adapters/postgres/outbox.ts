@@ -1,6 +1,6 @@
 import type { QueryResultRow } from 'pg';
 import { NotFoundError, type DomainEvent, type TenantId } from '../../domain/shared.js';
-import type { EventBus, OutboxRecord, OutboxRepository } from '../../ports/index.js';
+import type { ActivityRepository, EventBus, OutboxRecord, OutboxRepository } from '../../ports/index.js';
 import type { PostgresQueryable } from './repositories.js';
 
 interface OutboxRow extends QueryResultRow {
@@ -46,7 +46,7 @@ export class PostgresOutboxEventBus implements EventBus {
   }
 }
 
-export class PostgresOutboxRepository implements OutboxRepository {
+export class PostgresOutboxRepository implements OutboxRepository, ActivityRepository {
   constructor(private readonly database: PostgresQueryable) {}
 
   async listPending(tenantId: TenantId, limit = 100): Promise<readonly OutboxRecord[]> {
@@ -56,6 +56,19 @@ export class PostgresOutboxRepository implements OutboxRepository {
        FROM storyhouse.outbox_events
        WHERE tenant_id = $1 AND dispatched_at IS NULL
        ORDER BY occurred_at, id
+       LIMIT $2`,
+      [tenantId, limit]
+    );
+    return result.rows.map(toRecord);
+  }
+
+  async listRecent(tenantId: TenantId, limit = 20): Promise<readonly OutboxRecord[]> {
+    if (!Number.isSafeInteger(limit) || limit < 1) throw new RangeError('Activity limit must be a positive integer');
+    const result = await this.database.query<OutboxRow>(
+      `SELECT id, tenant_id, aggregate_id, event_type, payload, occurred_at, attempts, dispatched_at, last_error
+       FROM storyhouse.outbox_events
+       WHERE tenant_id = $1
+       ORDER BY occurred_at DESC, id DESC
        LIMIT $2`,
       [tenantId, limit]
     );

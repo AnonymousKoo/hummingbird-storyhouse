@@ -1,0 +1,17 @@
+import { Empty, Notice, PageHeader } from '../../components/chrome';
+import { date, label, percent } from '../../lib/format';
+import { ingestMetrics } from '../../server/actions';
+import { queries, tenantId } from '../../server/runtime';
+
+export const dynamic = 'force-dynamic';
+export default async function Analytics({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
+  const [summary, message] = await Promise.all([queries().analytics(tenantId()), searchParams]);
+  const chart = Object.entries(summary.totals); const max = Math.max(...chart.map(([, value]) => value), 1);
+  return <><PageHeader eyebrow="Performance" title="Signal over noise." description="Normalized observations connect channel performance back to content, campaign, and strategy." />
+    <Notice error={message.error} success={message.success} />
+    <section className="metric-grid">{[['Views', Math.round(summary.totals['views'] ?? 0).toLocaleString(), 'total observed'], ['Completion rate', percent(summary.totals['completion_rate'] ?? 0), 'across windows'], ['Observations', summary.observations.length, 'normalized records']].map(([name, value, note]) => <div className="metric" key={name}><small>{name}</small><strong>{value}</strong><em>{note}</em></div>)}</section>
+    <div className="split"><section><div className="panel"><h2>KPI shape</h2>{chart.length === 0 ? <Empty title="No metrics yet">Publish a story, then record views and completion rate to begin the performance record.</Empty> : <div className="chart">{chart.map(([metric, value]) => <div key={metric}><i style={{ height: `${Math.max(4, value / max * 160)}px` }} /><strong>{metric.includes('rate') ? percent(value) : Math.round(value).toLocaleString()}</strong><small>{label(metric)}</small></div>)}</div>}</div>
+      <section style={{ marginTop: 25 }}><h2>Observation ledger</h2><div className="table-wrap"><table><thead><tr><th>Content</th><th>Campaign</th><th>Channel</th><th>Metrics</th><th>Window</th></tr></thead><tbody>{summary.observations.map(({ observation, contentTitle, campaignName, channel }) => <tr key={observation.id}><td><strong>{contentTitle}</strong></td><td>{campaignName}</td><td>{channel}</td><td>{observation.metrics.map((metric) => `${label(metric.name)}: ${metric.unit === 'ratio' ? percent(metric.value) : metric.value.toLocaleString()}`).join(' · ')}</td><td>{date(observation.windowStart)}—{date(observation.windowEnd)}</td></tr>)}</tbody></table></div></section></section>
+      <aside className="form-panel"><h2>Ingest manual metrics</h2>{summary.publishedContent.length === 0 ? <p>No published content is available for measurement.</p> : <form action={ingestMetrics}><label>Published content<select name="publicationId">{summary.publishedContent.map((item) => <option value={item.publication?.id} key={item.publication?.id}>{item.content.title} · {item.publication?.channel}</option>)}</select></label><div className="form-row"><label>Window start<input name="windowStart" type="datetime-local" required /></label><label>Window end<input name="windowEnd" type="datetime-local" required /></label></div><label>Views<input name="views" type="number" min="0" step="1" required /></label><label>Completion rate (%)<input name="completionRate" type="number" min="0" max="100" step="0.1" required /></label><button className="button primary">Record observation</button></form>}</aside></div>
+  </>;
+}
