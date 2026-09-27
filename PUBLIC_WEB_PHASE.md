@@ -6,7 +6,7 @@ This is NOT the internal operator app and must not import the operator UI or pri
 The public site should feel like a premium media company fused with a technology company: cinematic, editorial, kinetic, culturally aware, and system-driven.
 
 ## Brand positioning
-Hummingbird Storyhouse is a Black-owned multimedia/content company building stories, campaigns, media systems, and eventually original IP.
+Hummingbird Storyhouse is a multimedia/content company building stories, campaigns, media systems, and eventually original IP.
 Public positioning should communicate three things quickly:
 1. Hummingbird understands culture.
 2. Hummingbird produces exceptional media.
@@ -96,7 +96,7 @@ Possible frames: vertical video crop, waveform/audio tile, campaign title card, 
 The composition should subtly respond to pointer/scroll on capable devices.
 
 Include a compact descriptor such as:
-"Black-owned multimedia company · Strategy · Production · Distribution · Intelligence"
+"Multimedia company · Strategy · Production · Distribution · Intelligence"
 
 ### 2. Positioning reveal — The Storyhouse
 Statement:

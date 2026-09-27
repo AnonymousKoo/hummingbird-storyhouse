@@ -1,6 +1,6 @@
 # Hummingbird Storyhouse Core
 
-Hummingbird Storyhouse Core is the domain and application foundation for a Black-owned multimedia/content company. It turns a client objective into a measurable operating loop: brand intelligence → strategy → campaign → content → production → approval → distribution → analytics → learning → renewal economics.
+Hummingbird Storyhouse Core is the domain and application foundation for a multimedia/content company. It turns a client objective into a measurable operating loop: brand intelligence → strategy → campaign → content → production → approval → distribution → analytics → learning → renewal economics.
 
 This repository contains a TypeScript domain/application core, the private Next.js operator app in `apps/operator`, and the public Hummingbird Storyhouse site in `apps/web`. The public and operator applications are separate: the public site is static-first and has no database dependency, while the operator app uses the durable PostgreSQL path exclusively.
 

@@ -148,7 +148,7 @@ export default function Home() {
               <a className="button button-primary" href="#start">Start a project <ArrowIcon /></a>
               <a className="button button-quiet" href="#storyhouse">Enter the Storyhouse <span aria-hidden="true">↓</span></a>
             </div>
-            <p className="hero-descriptor">Black-owned multimedia company <i /> Strategy <i /> Production <i /> Distribution <i /> Intelligence</p>
+            <p className="hero-descriptor">Multimedia company <i /> Strategy <i /> Production <i /> Distribution <i /> Intelligence</p>
           </div>
           <HeroComposition />
           <div className="scroll-cue" aria-hidden="true"><span>SCROLL TO FOLLOW THE SIGNAL</span><i /></div>
@@ -314,7 +314,7 @@ export default function Home() {
         <div className="footer-top"><BrandMark /><p>Culture moves.<br /><em>Stories carry it.</em></p></div>
         <div className="footer-bottom">
           <nav aria-label="Footer navigation"><a href="#work">Work</a><a href="#capabilities">Capabilities</a><a href="#originals">Originals</a><a href="#engine">Story Engine</a><a href="#start">Start a Project</a></nav>
-          <span>Black-owned multimedia company</span>
+          <span>Multimedia company</span>
           <small>© 2026 Hummingbird Storyhouse</small>
         </div>
       </footer>
