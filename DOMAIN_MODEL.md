@@ -22,4 +22,8 @@ Every aggregate has a `tenantId`. Repository lookup requires both tenant and agg
 
 ## Consistency boundary
 
-Each aggregate is independently stored. The application service is the consistency coordinator for the current in-memory implementation. No transaction abstraction is claimed before a real persistence model makes transaction scope and outbox behavior concrete.
+Each aggregate is independently stored and references other aggregates by branded ID. Direct in-memory execution uses the application service as coordinator and retains its existing instance-local idempotency behavior.
+
+Durable execution expands the consistency boundary to one application command. One PostgreSQL transaction contains all changed aggregate payloads/relational projections, the completed command receipt, and the command's outbox events. A failure commits none of those changes. Receipt identity is `(tenantId, commandId)`, and the durable result is replayed without rerunning domain behavior.
+
+PostgreSQL persistence does not change aggregate invariants: JSONB is the lossless domain representation, while scoped relational references enforce tenant-safe singular relationships. Outbox dispatch state and command receipts are persistence concerns, not domain entities.

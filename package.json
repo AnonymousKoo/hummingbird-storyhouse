@@ -21,18 +21,27 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --exclude 'test/integration/**'",
+    "test:integration": "DATABASE_URL=${DATABASE_URL:-postgresql://postgres@127.0.0.1:55432/storyhouse_test} vitest run test/integration",
     "lint": "eslint .",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "check:all": "npm run check && npm run db:up && npm run test:integration",
+    "db:up": "docker compose up -d --wait postgres",
+    "db:down": "docker compose down -v",
+    "db:migrate": "DATABASE_URL=${DATABASE_URL:-postgresql://postgres@127.0.0.1:55432/storyhouse_test} tsx src/adapters/postgres/migrate-cli.ts",
     "demo": "tsx src/demo.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
     "@types/node": "^22.18.6",
+    "@types/pg": "8.23.1",
     "eslint": "^9.36.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.1",
     "vitest": "^5.0.2"
+  },
+  "dependencies": {
+    "pg": "8.23.0"
   }
 }

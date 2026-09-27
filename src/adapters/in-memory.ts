@@ -1,16 +1,16 @@
-import type { EventBus, Repository, TenantEntity } from '../ports/index.js';
+import type { EventBus, Repository, StoryhouseRepositories, TenantEntity } from '../ports/index.js';
 import type { DomainEvent, TenantId } from '../domain/shared.js';
-import type { BrandRepository, Brand } from '../domain/clients.js';
-import type { StrategyRepository, Strategy } from '../domain/strategy.js';
-import type { CampaignRepository, Campaign } from '../domain/campaigns.js';
-import type { ContentRepository, ContentItem } from '../domain/content.js';
-import type { ApprovalRepository, ApprovalRequest } from '../domain/approvals.js';
-import type { AssetRepository, MediaAsset } from '../domain/assets.js';
-import type { PublicationRepository, PublicationIntent } from '../domain/distribution.js';
-import type { ObservationRepository, PerformanceObservation } from '../domain/analytics.js';
-import type { InsightRepository, Insight } from '../domain/learning.js';
-import type { CreatorRepository, Creator } from '../domain/creators.js';
-import type { EngagementRepository, Engagement, Invoice, InvoiceRepository } from '../domain/commerce.js';
+import type { Brand } from '../domain/clients.js';
+import type { Strategy } from '../domain/strategy.js';
+import type { Campaign } from '../domain/campaigns.js';
+import type { ContentItem } from '../domain/content.js';
+import type { ApprovalRequest } from '../domain/approvals.js';
+import type { MediaAsset } from '../domain/assets.js';
+import type { PublicationIntent } from '../domain/distribution.js';
+import type { PerformanceObservation } from '../domain/analytics.js';
+import type { Insight } from '../domain/learning.js';
+import type { Creator } from '../domain/creators.js';
+import type { Engagement, Invoice } from '../domain/commerce.js';
 
 export class InMemoryRepository<T extends TenantEntity> implements Repository<T> {
   readonly #items = new Map<string, T>();
@@ -25,12 +25,7 @@ export class InMemoryRepository<T extends TenantEntity> implements Repository<T>
   private key(tenantId: TenantId, id: string): string { return `${tenantId}:${id}`; }
 }
 
-export interface Repositories {
-  readonly brands: BrandRepository; readonly strategies: StrategyRepository; readonly campaigns: CampaignRepository;
-  readonly content: ContentRepository; readonly approvals: ApprovalRepository; readonly assets: AssetRepository;
-  readonly publications: PublicationRepository; readonly observations: ObservationRepository; readonly insights: InsightRepository;
-  readonly creators: CreatorRepository; readonly engagements: EngagementRepository; readonly invoices: InvoiceRepository;
-}
+export type Repositories = StoryhouseRepositories;
 
 export function createInMemoryRepositories(): Repositories {
   return {

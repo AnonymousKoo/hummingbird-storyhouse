@@ -8,10 +8,9 @@ import { createObservation, type MetricValue, type PerformanceObservation } from
 import { createInsight, type Insight, type InsightGenerator } from '../domain/learning.js';
 import { calculateEconomics, createEngagement as makeEngagement, type Cost, type CreatorPayout, type Economics, type Engagement, type EngagementKind, type ServicePackage } from '../domain/commerce.js';
 import { ConflictError, NotFoundError, invariant, iso, type ApprovalId, type BrandId, type CampaignId, type CommandId, type ContentId, type DomainEvent, type EngagementId, type InsightId, type Money, type ObservationId, type PublicationId, type StrategyId, type TenantId } from '../domain/shared.js';
-import type { Clock, EventBus, IdGenerator, Repository, TenantEntity } from '../ports/index.js';
-import type { Repositories } from '../adapters/in-memory.js';
+import type { Clock, EventBus, IdGenerator, Repository, StoryhouseRepositories, TenantEntity } from '../ports/index.js';
 
-export interface StoryhouseDependencies { readonly repositories: Repositories; readonly clock: Clock; readonly ids: IdGenerator; readonly events: EventBus; readonly insightGenerator: InsightGenerator }
+export interface StoryhouseDependencies { readonly repositories: StoryhouseRepositories; readonly clock: Clock; readonly ids: IdGenerator; readonly events: EventBus; readonly insightGenerator: InsightGenerator }
 
 export class StoryhouseService {
   readonly #commands = new Map<CommandId, Promise<unknown>>();
@@ -51,8 +50,8 @@ export class StoryhouseService {
 
   createContentBrief(commandId: CommandId, input: { tenantId: TenantId; campaignId: CampaignId; title: string; idea: string; hooks: readonly string[]; brief: string; cta: string; metadata?: Readonly<Record<string, string>>; parentId?: ContentId; variantLabel?: string }): Promise<ContentItem> {
     return this.once(commandId, async () => {
-      const campaign = await this.mustGet(this.deps.repositories.campaigns, input.tenantId, input.campaignId, 'Campaign'); invariant(campaign.status === 'active', 'Content requires an active campaign');
       if (input.parentId !== undefined) await this.mustGet(this.deps.repositories.content, input.tenantId, input.parentId, 'Parent content');
+      const campaign = await this.mustGet(this.deps.repositories.campaigns, input.tenantId, input.campaignId, 'Campaign'); invariant(campaign.status === 'active', 'Content requires an active campaign');
       const optional = { ...(input.parentId === undefined ? {} : { parentId: input.parentId }), ...(input.variantLabel === undefined ? {} : { variantLabel: input.variantLabel }) };
       const content = createContent({ ...input, ...optional, id: this.id('content') as ContentId, metadata: input.metadata ?? {}, state: 'brief', createdAt: this.now(), updatedAt: this.now() });
       await this.deps.repositories.content.save(content); await this.emit('content.brief_created', content, { title: content.title }); return content;
@@ -116,7 +115,15 @@ export class StoryhouseService {
   generateInsight(commandId: CommandId, tenantId: TenantId, observationIds: readonly ObservationId[]): Promise<Insight> {
     return this.once(commandId, async () => {
       invariant(observationIds.length > 0, 'At least one observation is required');
-      const observations = await Promise.all(observationIds.map((id) => this.mustGet(this.deps.repositories.observations, tenantId, id, 'Observation')));
+      const observationsById = new Map<ObservationId, PerformanceObservation>();
+      for (const id of [...new Set(observationIds)].sort()) {
+        observationsById.set(id, await this.mustGet(this.deps.repositories.observations, tenantId, id, 'Observation'));
+      }
+      const observations = observationIds.map((id) => {
+        const observation = observationsById.get(id);
+        invariant(observation !== undefined, 'All insight observations must exist');
+        return observation;
+      });
       const first = observations[0]; invariant(first !== undefined, 'At least one observation is required'); invariant(observations.every((item) => item.strategyId === first.strategyId && item.campaignId === first.campaignId), 'Insight evidence must share a strategy and campaign');
       const generated = await this.deps.insightGenerator.generate(observations); const insight = createInsight({ ...generated, id: this.id('insight') as InsightId, tenantId, strategyId: first.strategyId, campaignId: first.campaignId, observationIds, status: 'proposed', createdAt: this.now() });
       await this.deps.repositories.insights.save(insight); await this.emit('learning.insight_generated', insight, { evidenceCount: observationIds.length }); return insight;
@@ -125,7 +132,9 @@ export class StoryhouseService {
 
   createEngagement(commandId: CommandId, input: { tenantId: TenantId; campaignIds: readonly CampaignId[]; kind: EngagementKind; package: ServicePackage; contractedRevenue: Money; costs: readonly Cost[]; creatorPayouts: readonly CreatorPayout[]; startsAt: string; endsAt?: string }): Promise<{ engagement: Engagement; economics: Economics }> {
     return this.once(commandId, async () => {
-      await Promise.all(input.campaignIds.map((id) => this.mustGet(this.deps.repositories.campaigns, input.tenantId, id, 'Campaign')));
+      for (const id of [...new Set(input.campaignIds)].sort()) {
+        await this.mustGet(this.deps.repositories.campaigns, input.tenantId, id, 'Campaign');
+      }
       const engagement = makeEngagement({ ...input, id: this.id('engagement') as EngagementId }); await this.deps.repositories.engagements.save(engagement);
       const economics = calculateEconomics(engagement); await this.emit('commerce.engagement_created', engagement, { marginMinor: economics.contributionMargin.amount }); return { engagement, economics };
     });
