@@ -50,6 +50,7 @@ describe('operator read models', () => {
       conversionGoals: [{ name: 'Reservations', eventType: 'booking', target: 10 }]
     });
     await setup.service.linkMarketingCampaign(commandId(), tenantA, plan.id, setup.campaign.id);
+    await setup.service.activateMarketingPlan(commandId(), tenantA, plan.id);
     await setup.service.recordMarketingSpend(commandId(), { tenantId: tenantA, marketingPlanId: plan.id, campaignId: setup.campaign.id, channel: 'paid_social', amount: money(10_000, 'USD'), occurredAt: '2026-01-05T00:00:00.000Z' });
     await setup.service.recordConversion(commandId(), { tenantId: tenantA, marketingPlanId: plan.id, campaignId: setup.campaign.id, eventType: 'purchase', channel: 'paid_social', source: 'fictional-maker-release', value: money(25_000, 'USD'), occurredAt: '2026-01-06T00:00:00.000Z', metadata: { placement: 'field-note' } });
     await setup.service.createMarketingExperiment(commandId(), { tenantId: tenantA, marketingPlanId: plan.id, campaignId: setup.campaign.id, name: 'Reservation CTA', hypothesis: 'Specific utility improves action', variants: [{ id: 'utility', label: 'Utility', description: 'Name the build' }, { id: 'community', label: 'Community', description: 'Name the group' }], primaryMetric: 'booking_rate' });

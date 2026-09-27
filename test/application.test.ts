@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { NotFoundError, type ContentId } from '../src/index.js';
+import { money, NotFoundError, type ContentId } from '../src/index.js';
 import { campaignFixture, commandId, tenantA, tenantB } from './helpers.js';
 
 describe('application boundaries', () => {
@@ -45,6 +45,16 @@ describe('application boundaries', () => {
       funnelStages: [{ stage: 'conversion', objective: 'Earn bookings', cta: 'Book a session', channels: ['web'] }],
       conversionGoals: [{ name: 'Workshop bookings', eventType: 'booking', target: 12 }]
     });
+    await expect(service.recordMarketingSpend(commandId(), {
+      tenantId: tenantA, marketingPlanId: plan.id, channel: 'paid_social',
+      amount: money(1_000, 'USD'), occurredAt: '2026-02-01T00:00:00.000Z'
+    })).rejects.toThrow('active marketing plan');
+    const draftExperiment = await service.createMarketingExperiment(commandId(), {
+      tenantId: tenantA, marketingPlanId: plan.id, name: 'Draft plan experiment',
+      hypothesis: 'A useful frame changes intent', primaryMetric: 'booking',
+      variants: [{ id: 'a', label: 'A', description: 'A' }, { id: 'b', label: 'B', description: 'B' }]
+    });
+    await expect(service.startMarketingExperiment(commandId(), tenantA, draftExperiment.id)).rejects.toThrow('active marketing plan');
     const active = await service.activateMarketingPlan(commandId(), tenantA, plan.id);
     expect(active.status).toBe('active');
     const linked = await service.linkMarketingCampaign(commandId(), tenantA, plan.id, campaign.id);

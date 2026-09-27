@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   activateMarketingPlan,
   completeMarketingExperiment,
+  createConversionEvent,
   createMarketingExperiment,
   createMarketingPlan,
+  createMarketingSpend,
   linkCampaignToMarketingPlan,
   money,
   startMarketingExperiment,
@@ -123,5 +125,29 @@ describe('marketing domain', () => {
     expect(summarizeMarketing(activePlan, [conversion], [])).toMatchObject({ totalSpend: money(0, 'USD'), attributedValue: money(5_000, 'USD'), cac: money(0, 'USD'), roas: null });
     const mismatched: MarketingSpend = { id: 'spend_1' as MarketingSpendId, tenantId: tenantA, marketingPlanId: planId, channel: 'web', amount: money(1_000, 'CAD'), occurredAt: at };
     expect(() => summarizeMarketing(activePlan, [conversion], [mismatched])).toThrow('Currencies must match');
+  });
+
+  it('normalizes marketing money and rejects non-minor-unit amounts', () => {
+    const normalizedPlan = createMarketingPlan(plan({
+      conversionGoals: [{ name: 'Qualified subscriptions', eventType: 'qualified_lead', value: { amount: 2_500, currency: 'usd' } }]
+    }));
+    expect(normalizedPlan.conversionGoals[0]?.value).toEqual(money(2_500, 'USD'));
+
+    const conversion = createConversionEvent({
+      id: 'conversion_5' as ConversionEventId, tenantId: tenantA, marketingPlanId: planId,
+      eventType: 'purchase', channel: 'web', source: 'fictional-site',
+      value: { amount: 5_000, currency: 'usd' }, occurredAt: at, metadata: {}
+    });
+    expect(conversion.value).toEqual(money(5_000, 'USD'));
+
+    const spend = createMarketingSpend({
+      id: 'spend_3' as MarketingSpendId, tenantId: tenantA, marketingPlanId: planId,
+      channel: 'paid_social', amount: { amount: 1_000, currency: 'usd' }, occurredAt: at
+    });
+    expect(spend.amount).toEqual(money(1_000, 'USD'));
+    expect(() => createMarketingSpend({
+      id: 'spend_4' as MarketingSpendId, tenantId: tenantA, marketingPlanId: planId,
+      channel: 'paid_social', amount: { amount: 10.5, currency: 'USD' }, occurredAt: at
+    })).toThrow('integer in minor units');
   });
 });
