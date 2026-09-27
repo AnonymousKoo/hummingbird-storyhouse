@@ -11,5 +11,7 @@ coverage/
 /apps/operator/CLAUDE.md
 
 /apps/operator/.next/
+/apps/web/.next/
+/apps/web/.vercel/
 
 .next/

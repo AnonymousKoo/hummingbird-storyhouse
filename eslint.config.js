@@ -2,7 +2,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'coverage/**', 'eslint.config.js', 'apps/operator/.next/**'] },
+  { ignores: ['dist/**', 'coverage/**', 'eslint.config.js', 'apps/operator/.next/**', 'apps/web/.next/**'] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   {
@@ -15,7 +15,7 @@ export default tseslint.config(
     }
   },
   {
-    files: ['apps/operator/**/*.tsx'],
+    files: ['apps/{operator,web}/**/*.tsx'],
     languageOptions: { parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname } },
     rules: {
       '@typescript-eslint/consistent-type-imports': 'error',

@@ -2,7 +2,7 @@
 
 Hummingbird Storyhouse Core is the domain and application foundation for a Black-owned multimedia/content company. It turns a client objective into a measurable operating loop: brand intelligence → strategy → campaign → content → production → approval → distribution → analytics → learning → renewal economics.
 
-This repository contains a TypeScript domain/application core plus the internal Next.js operator app in `apps/operator`. It is not a public marketing website. The core supports both a zero-infrastructure in-memory path and a restart-safe PostgreSQL command path; the operator app uses the durable path exclusively.
+This repository contains a TypeScript domain/application core, the private Next.js operator app in `apps/operator`, and the public Hummingbird Storyhouse site in `apps/web`. The public and operator applications are separate: the public site is static-first and has no database dependency, while the operator app uses the durable PostgreSQL path exclusively.
 
 ## Quickstart
 
@@ -40,6 +40,18 @@ npm run operator:dev
 
 The documented commands default only for local development to `storyhouse_test` and tenant `tenant_storyhouse_demo`. Production-like runs must explicitly provide `DATABASE_URL` and `STORYHOUSE_TENANT_ID`; the tenant environment value is context, not an authorization mechanism. See [apps/operator/README.md](./apps/operator/README.md).
 
+## Public site
+
+The public site presents the Storyhouse as a media operating company across strategy, production, distribution, audience intelligence, and original IP. It is an independently installable Next.js App Router application with no core, operator, PostgreSQL, or environment-variable requirement.
+
+```sh
+cd apps/web
+npm ci
+npm run dev
+```
+
+Its intake form is intentionally a transparent client-side acknowledgement in this phase; it does not transmit or persist submissions. For local commands and Vercel root-directory settings, see [apps/web/README.md](./apps/web/README.md).
+
 ## Architecture
 
 The core is organized as a framework-independent modular monolith:
@@ -71,6 +83,7 @@ Dependencies point inward: adapters depend on ports/domain; application coordina
 - Lock transactional aggregate reads so competing state transitions observe committed state instead of overwriting it.
 - Read pending outbox events in deterministic order and report missing or cross-tenant dispatch mutations to a future worker.
 - Operate the complete local workflow through a responsive, server-rendered internal workspace with real PostgreSQL reads and typed-command writes.
+- Present the public Storyhouse narrative through an accessible, static-first media experience without exposing private runtime dependencies.
 
 ## Example golden path
 
@@ -82,8 +95,9 @@ Dependencies point inward: adapters depend on ports/domain; application coordina
 npm run check       # lint, strict types, unit tests, build
 npm run check:all   # check + local Postgres startup + integration tests
 npm audit
+cd apps/web && npm run check && npm audit
 ```
 
 ## Deliberately not built
 
-There is no public marketing UI, hosted database, object storage implementation, authentication provider, RLS policy, background scheduler/outbox worker, AI vendor, or social-platform integration. There is no Supabase or Vercel setup. Hosted database selection and authorization policy remain deferred until the identity model is finalized. Avuhz is not a dependency: future orchestration can issue idempotent commands, consume the outbox, and implement ports without entering the domain core.
+There is no public intake backend, hosted database, object storage implementation, authentication provider, RLS policy, background scheduler/outbox worker, AI vendor, or social-platform integration. There is no Supabase runtime or committed Vercel project metadata. Hosted database selection and authorization policy remain deferred until the identity model is finalized. Avuhz is not a dependency: future orchestration can issue idempotent commands, consume the outbox, and implement ports without entering the domain core.
