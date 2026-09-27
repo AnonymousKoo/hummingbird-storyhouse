@@ -28,12 +28,13 @@ export class PostgresDurableCommandGateway {
   }
 
   execute<TCommand extends StoryhouseCommand>(command: TCommand): Promise<CommandResult<TCommand>> {
+    const durableCommand = structuredClone(command);
     return this.#unitOfWork.transaction(async (client) => {
-      await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [`${command.tenantId}:${command.commandId}`]);
+      await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [`${durableCommand.tenantId}:${durableCommand.commandId}`]);
       const receipts = new PostgresCommandReceiptRepository(client);
-      const existing = await receipts.get(command.tenantId, command.commandId);
+      const existing = await receipts.get(durableCommand.tenantId, durableCommand.commandId);
       if (existing !== undefined) {
-        if (existing.commandType !== command.type || !isDeepStrictEqual(existing.commandPayload, command.payload)) {
+        if (existing.commandType !== durableCommand.type || !isDeepStrictEqual(existing.commandPayload, durableCommand.payload)) {
           throw new ConflictError('Command ID was already used for a different command');
         }
         return structuredClone(existing.result) as CommandResult<TCommand>;
@@ -46,12 +47,12 @@ export class PostgresDurableCommandGateway {
         ids: this.#ids,
         insightGenerator: this.dependencies.insightGenerator
       });
-      const result = await new StoryhouseCommandDispatcher(service).dispatch(command);
+      const result = await new StoryhouseCommandDispatcher(service).dispatch(durableCommand);
       await receipts.save({
-        commandId: command.commandId,
-        tenantId: command.tenantId,
-        commandType: command.type,
-        commandPayload: command.payload,
+        commandId: durableCommand.commandId,
+        tenantId: durableCommand.tenantId,
+        commandType: durableCommand.type,
+        commandPayload: durableCommand.payload,
         result,
         completedAt: iso(this.dependencies.clock.now())
       });
