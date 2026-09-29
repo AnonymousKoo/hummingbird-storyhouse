@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://hummingbirdstoryhouse.com'),
   title: 'Hummingbird Storyhouse — Media + marketing built to move',
   description:
-    'Hummingbird Storyhouse connects strategy, creative, production, distribution, growth marketing, and intelligence to move people and business.',
+    'Hummingbird Storyhouse unifies brand strategy, marketing, creative, production, distribution, and intelligence so stories can move people and measurable business outcomes.',
   applicationName: 'Hummingbird Storyhouse',
   keywords: ['media and marketing company', 'brand and audience strategy', 'growth marketing', 'multimedia production', 'campaign distribution'],
   authors: [{ name: 'Hummingbird Storyhouse' }],

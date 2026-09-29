@@ -42,7 +42,7 @@ The documented commands default only for local development to `storyhouse_test` 
 
 ## Public site
 
-The public site presents the Storyhouse as a media + marketing operating company across brand/audience strategy, creative, production, distribution, growth marketing, performance intelligence, and original IP. It is an independently installable Next.js App Router application with no core, operator, PostgreSQL, or environment-variable requirement.
+The public site presents the Storyhouse as a media + marketing operating company across brand/audience strategy, creative, production, distribution, growth marketing, performance intelligence, and original IP. Its commercial narrative also explains why the company exists, who it is built for, the five primary ways to engage Hummingbird, and how internal ventures are being used as a transparent proof laboratory while formal case studies develop. It is an independently installable Next.js App Router application with no core, operator, PostgreSQL, or environment-variable requirement.
 
 ```sh
 cd apps/web

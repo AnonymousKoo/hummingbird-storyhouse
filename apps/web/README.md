@@ -1,6 +1,6 @@
 # Hummingbird Storyhouse Public Web
 
-The public Storyhouse site is a static-first Next.js App Router application positioning Hummingbird as a media + marketing operating company. It is intentionally separate from the private operator workspace and does not import the domain core, PostgreSQL adapter, or operator UI.
+The public Storyhouse site is a static-first Next.js App Router application positioning Hummingbird as a media + marketing operating company. The homepage now carries the full commercial narrative: why Hummingbird exists, who it is for, what capabilities move through the house, clear ways to work together, the Story Engine, transparent internal-venture proof, Originals, intelligence, the engagement process, and project intake. It is intentionally separate from the private operator workspace and does not import the domain core, PostgreSQL adapter, or operator UI.
 
 ## Local development
 

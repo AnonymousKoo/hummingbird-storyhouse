@@ -59,13 +59,12 @@ export function IntakeForm() {
           <span>Interested in</span>
           <select defaultValue="" name="interest" required>
             <option disabled value="">Choose a direction</option>
-            <option value="brand-marketing-strategy">Brand &amp; marketing strategy</option>
-            <option value="growth-marketing">Growth marketing</option>
-            <option value="campaign">Campaign</option>
-            <option value="production">Production</option>
-            <option value="distribution">Distribution</option>
-            <option value="creator-partnership">Creator partnership</option>
-            <option value="originals">Originals</option>
+            <option value="brand-growth-system">Build the brand &amp; growth system</option>
+            <option value="campaign">Run a campaign</option>
+            <option value="media-engine">Operate the media engine</option>
+            <option value="story-release">Produce a story / release</option>
+            <option value="original-partnership">Build an original / partnership</option>
+            <option value="not-sure">Not sure yet — help me shape it</option>
           </select>
         </label>
         <label>

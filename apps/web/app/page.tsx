@@ -13,9 +13,73 @@ const capabilities = [
 ] as const;
 
 const worlds = [
-  { name: 'TableGrid', index: 'WORLD 01', field: 'Food / Network / Brand storytelling', line: 'A living table for the people, rituals, and ideas shaping how culture eats.', className: 'world-tablegrid' },
-  { name: 'VYRAL', index: 'WORLD 02', field: 'Gaming / Community / Entertainment', line: 'Competitive energy and community stories, designed beyond the highlight reel.', className: 'world-vyral' },
-  { name: 'Yaadbody', index: 'WORLD 03', field: 'Wellness / Education / Lifestyle', line: 'A grounded, culturally fluent world for feeling well and living whole.', className: 'world-yaadbody' }
+  {
+    name: 'TableGrid',
+    index: 'WORLD 01',
+    field: 'Food / Network / Brand storytelling',
+    line: 'A living table for the people, rituals, and ideas shaping how culture eats.',
+    role: 'Positioning · narrative system · food media',
+    status: 'Internal venture laboratory',
+    className: 'world-tablegrid'
+  },
+  {
+    name: 'VYRAL',
+    index: 'WORLD 02',
+    field: 'Gaming / Community / Entertainment',
+    line: 'Competitive energy and community stories, designed beyond the highlight reel.',
+    role: 'Brand world · community media · entertainment',
+    status: 'Internal venture laboratory',
+    className: 'world-vyral'
+  },
+  {
+    name: 'Yaadbody',
+    index: 'WORLD 03',
+    field: 'Wellness / Education / Lifestyle',
+    line: 'A grounded, culturally fluent world for feeling well and living whole.',
+    role: 'Brand system · education · lifestyle storytelling',
+    status: 'Internal venture laboratory',
+    className: 'world-yaadbody'
+  }
+] as const;
+
+const audiences = [
+  ['01', 'Brands entering a new chapter', 'Launching, repositioning, expanding, or trying to make a stronger market move than another campaign can solve.'],
+  ['02', 'Founders building real demand', 'You need the story, offer, channels, and conversion path to work together—not just a launch asset.'],
+  ['03', 'Teams tired of disconnected vendors', 'Strategy, marketing, creative, production, distribution, and measurement should behave like one system.'],
+  ['04', 'Creators and properties building something ownable', 'Move beyond feeds and one-off posts toward formats, audiences, partnerships, and enduring media value.']
+] as const;
+
+const engagements = [
+  {
+    number: '01',
+    title: 'Build the Brand & Growth System',
+    fit: 'New brand · Repositioning · New market',
+    outcome: 'Positioning, audience, offer, message, channel architecture, conversion path, and measurement plan.'
+  },
+  {
+    number: '02',
+    title: 'Run a Campaign',
+    fit: 'Launch · Seasonal push · Product or service growth',
+    outcome: 'Campaign strategy, creative system, production, release plan, conversion design, and learning loop.'
+  },
+  {
+    number: '03',
+    title: 'Operate the Media Engine',
+    fit: 'Ongoing media · Recurring growth · Internal team leverage',
+    outcome: 'Continuous planning, production, distribution, performance intelligence, and iteration without becoming a content factory.'
+  },
+  {
+    number: '04',
+    title: 'Produce a Story / Release',
+    fit: 'Hero film · Series · Podcast · Editorial package',
+    outcome: 'Concept-to-release production with the audience, format, distribution, and next action considered from the beginning.'
+  },
+  {
+    number: '05',
+    title: 'Build an Original / Partnership',
+    fit: 'Owned IP · Creator collaboration · Co-production',
+    outcome: 'Development strategy, format, audience, partnership model, and a path toward media Hummingbird or its partners can own.'
+  }
 ] as const;
 
 const relationship = [
@@ -138,7 +202,7 @@ function MediaMeetsMarketing() {
   const outcomes = ['AUDIENCE', 'QUALIFIED LEADS', 'BOOKINGS', 'SIGNUPS', 'PURCHASES', 'RETENTION'];
   return (
     <section className="media-marketing section-pad" id="media-marketing">
-      <div className="section-number" aria-hidden="true">03 / 10</div>
+      <div className="section-number" aria-hidden="true">05 / 12</div>
       <div className="media-marketing-head" data-reveal>
         <p className="kicker">Media meets marketing</p>
         <h2>Attention is only<br /><em>the beginning.</em></h2>
@@ -167,7 +231,7 @@ export default function Home() {
         <nav aria-label="Primary navigation">
           <a href="#work">Work</a>
           <a href="#capabilities">Capabilities</a>
-          <a href="#originals">Originals</a>
+          <a href="#engagements">Ways to work</a>
           <a href="#engine">Story Engine</a>
         </nav>
         <a className="header-cta" href="#start">Start a project <span aria-hidden="true">↗</span></a>
@@ -191,7 +255,7 @@ export default function Home() {
         </section>
 
         <section className="positioning section-pad" id="storyhouse">
-          <div className="section-number" aria-hidden="true">01 / 10</div>
+          <div className="section-number" aria-hidden="true">01 / 12</div>
           <div className="positioning-lead" data-reveal>
             <p className="kicker">Inside the Storyhouse</p>
             <h2>Not a content factory.<br /><em>A media + marketing operating company.</em></h2>
@@ -207,7 +271,41 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="capabilities section-pad" id="capabilities">
+        <section className="thesis section-pad numbered-section" id="why">
+          <div className="section-number" aria-hidden="true">02 / 12</div>
+          <div className="thesis-copy" data-reveal>
+            <p className="kicker">Why Hummingbird exists</p>
+            <h2>Five separate rooms.<br /><em>One story to move.</em></h2>
+            <p>Most companies split strategy, marketing, creative, production, and measurement across different teams, vendors, and handoffs. Hummingbird was built to make them behave like one system.</p>
+          </div>
+          <div className="thesis-system" data-reveal aria-label="Strategy, marketing, creative, production, and intelligence converging inside one Storyhouse">
+            {['STRATEGY', 'MARKETING', 'CREATIVE', 'PRODUCTION', 'INTELLIGENCE'].map((room, index) => (
+              <div className="thesis-room" key={room}><span>0{index + 1}</span><b>{room}</b><i aria-hidden="true">↘</i></div>
+            ))}
+            <div className="thesis-core"><span>ONE</span><strong>STORYHOUSE</strong><small>Shared objective · shared audience · shared learning</small></div>
+          </div>
+        </section>
+
+        <section className="fit section-pad numbered-section" id="fit">
+          <div className="section-number" aria-hidden="true">03 / 12</div>
+          <div className="fit-head" data-reveal>
+            <p className="kicker">Who this is for</p>
+            <h2>For brands with<br /><em>something to move.</em></h2>
+            <p>Hummingbird is most useful when the problem is bigger than “we need content.” The work starts where story, market, audience, and business direction meet.</p>
+          </div>
+          <div className="fit-grid">
+            {audiences.map(([number, title, copy]) => (
+              <article data-reveal key={number}>
+                <span>{number}</span>
+                <h3>{title}</h3>
+                <p>{copy}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="capabilities section-pad numbered-section" id="capabilities">
+          <div className="section-number" aria-hidden="true">04 / 12</div>
           <div className="section-heading" data-reveal>
             <div><p className="kicker">What we do</p><h2>What moves<br /><em>through the house.</em></h2></div>
             <p>From the first strategic question to the signal that shapes what comes next, every capability works as part of the same living system.</p>
@@ -226,8 +324,27 @@ export default function Home() {
 
         <MediaMeetsMarketing />
 
+        <section className="engagements section-pad numbered-section" id="engagements">
+          <div className="section-number" aria-hidden="true">06 / 12</div>
+          <div className="engagements-head" data-reveal>
+            <p className="kicker">Ways to work with Hummingbird</p>
+            <h2>Buy the outcome.<br /><em>Not a pile of posts.</em></h2>
+            <p>Every engagement has a clear job to do. The scope changes, but the operating idea stays the same: connect the story to the audience, the release, the action, and the learning.</p>
+          </div>
+          <div className="engagement-list">
+            {engagements.map((engagement) => (
+              <article data-reveal key={engagement.number}>
+                <span>{engagement.number}</span>
+                <div><h3>{engagement.title}</h3><small>{engagement.fit}</small></div>
+                <p>{engagement.outcome}</p>
+                <a href="#start" aria-label={'Start a project for ' + engagement.title}>Start here <i aria-hidden="true">↗</i></a>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section className="story-engine-section section-pad" id="engine">
-          <div className="section-number" aria-hidden="true">04 / 10</div>
+          <div className="section-number" aria-hidden="true">07 / 12</div>
           <div className="engine-heading" data-reveal>
             <p className="kicker">The Story Engine</p>
             <h2>One strong story should not become <em>one asset.</em></h2>
@@ -241,10 +358,11 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="worlds section-pad" id="work">
+        <section className="worlds section-pad numbered-section" id="work">
+          <div className="section-number" aria-hidden="true">08 / 12</div>
           <div className="section-heading" data-reveal>
-            <div><p className="kicker">Built inside the ecosystem</p><h2>Selected<br /><em>worlds in motion.</em></h2></div>
-            <p>Living concepts developed within Hummingbird’s ecosystem—each with its own audience, visual language, and potential to grow.</p>
+            <div><p className="kicker">Proof in motion / internal venture lab</p><h2>We test the system<br /><em>on worlds we can touch.</em></h2></div>
+            <p>Before we present polished client case studies, Hummingbird is using its own ecosystem as the laboratory. These are internal ventures—not external client claims—and each one gives the Storyhouse a place to prove its thinking in real operations.</p>
           </div>
           <div className="world-list">
             {worlds.map((world) => (
@@ -259,14 +377,19 @@ export default function Home() {
                   <p>{world.field}</p>
                   <h3>{world.name}</h3>
                   <span>{world.line}</span>
-                  <small>Concept in development</small>
+                  <dl className="world-proof">
+                    <div><dt>Hummingbird role</dt><dd>{world.role}</dd></div>
+                    <div><dt>Status</dt><dd>{world.status}</dd></div>
+                  </dl>
+                  <small>Case study in development</small>
                 </div>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="originals" id="originals">
+        <section className="originals numbered-section" id="originals">
+          <div className="section-number originals-number" aria-hidden="true">09 / 12</div>
           <div className="originals-backdrop" aria-hidden="true"><span>ORIGINALS</span></div>
           <div className="originals-inner section-pad">
             <div className="originals-title" data-reveal>
@@ -291,7 +414,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="signals section-pad" id="signals">
+        <section className="signals section-pad numbered-section" id="signals">
+          <div className="section-number" aria-hidden="true">10 / 12</div>
           <div className="signals-copy" data-reveal>
             <p className="kicker">Intelligence / Signals</p>
             <h2>Every release teaches <em>the next one.</em></h2>
@@ -320,7 +444,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relationship section-pad">
+        <section className="relationship section-pad numbered-section">
+          <div className="section-number" aria-hidden="true">11 / 12</div>
           <div className="relationship-head" data-reveal>
             <p className="kicker">Working together</p>
             <h2>How brands enter<br /><em>the Storyhouse.</em></h2>
@@ -334,7 +459,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="intake section-pad" id="start">
+        <section className="intake section-pad numbered-section" id="start">
+          <div className="section-number" aria-hidden="true">12 / 12</div>
           <div className="intake-copy" data-reveal>
             <p className="kicker">Start a project</p>
             <h2>You have something worth saying.<br /><em>Let’s make it impossible to ignore.</em></h2>
@@ -351,7 +477,7 @@ export default function Home() {
       <footer className="site-footer">
         <div className="footer-top"><BrandMark /><p>Culture moves.<br /><em>Stories carry it.</em></p></div>
         <div className="footer-bottom">
-          <nav aria-label="Footer navigation"><a href="#work">Work</a><a href="#capabilities">Capabilities</a><a href="#originals">Originals</a><a href="#engine">Story Engine</a><a href="#start">Start a Project</a></nav>
+          <nav aria-label="Footer navigation"><a href="#why">Why Hummingbird</a><a href="#capabilities">Capabilities</a><a href="#engagements">Ways to work</a><a href="#work">Proof</a><a href="#originals">Originals</a><a href="#start">Start a Project</a></nav>
           <span>Media + marketing company</span>
           <small>© 2026 Hummingbird Storyhouse</small>
         </div>
